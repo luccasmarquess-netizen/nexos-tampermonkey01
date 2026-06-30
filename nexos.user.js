@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.1.0
+// @version      1.2.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -44,87 +44,21 @@
   ];
 
   const CATS = [
-    { g: 'Instalação e Sistema', a: [
-      'Acesso remoto estabelecido (RustDesk)',
-      'Consumer aberto e versão verificada',
-      'Atualização do Consumer executada',
-      'Consumer reiniciado',
-      'Bloqueio de antivírus/UAC verificado',
-      'Ativação/licença verificada',
-      'Backup realizado antes da intervenção',
-      'Reinstalação do Consumer realizada',
-    ]},
-    { g: 'Rede e Conectividade', a: [
-      'Teste de conectividade com a internet',
-      'IP fixo verificado/configurado no servidor',
-      'Versão rede verificada entre computadores',
-      'VPN (Hamachi/Radmin) configurada',
-      'Reconexão entre PC servidor e PC cliente realizada',
-      'Alteração de métricas de rede realizada',
-    ]},
-    { g: 'Impressoras e Hardware', a: [
-      'Impressora instalada e configurada no Consumer',
-      'Driver da impressora reinstalado',
-      'Local de produção vinculado aos produtos',
-      'Teste de impressão realizado com resultado positivo',
-      'Gaveta de dinheiro verificada',
-      'Balança instalada e configurada no Consumer',
-    ]},
-    { g: 'Fiscal', a: [
-      'Módulo fiscal verificado (NFC-e/NF-e)',
-      'Emissor fiscal componente configurado',
-      'Certificado digital verificado/atualizado',
-      'Rejeição de cupom fiscal identificada e corrigida',
-      'Validação e testes de emissão fiscal realizados com resultado positivo',
-      'Emissão de cupom fiscal em lote realizada',
-      'Arquivos XML exportados ao contador',
-      'Cancelamento de NFC-e/NF-e realizado',
-    ]},
-    { g: 'Pedidos e Integrações', a: [
-      'Módulo Mobile instalado e validado',
-      'Integração iFood verificada',
-      'Integração 99Food verificada',
-      'Integração Keeta verificada',
-      'Bot WhatsApp verificado',
-      'App do Entregador verificado',
-      'Monitor de Preparo verificado',
-      'Recebimento via PIX configurado',
-      'Totem verificado/configurado',
-      'Integração via API do parceiro configurada',
-      'SmartPOS verificado/configurado',
-      'Serviços logísticos verificados',
-    ]},
-    { g: 'MenuDino', a: [
-      'MenuDino configurado e validado',
-      'Chave Google Maps configurada no Consumer',
-      'Recebimento via PIX configurado',
-      'Produtos em destaque no MenuDino configurados',
-      'Conta Google Play Developer criada/configurada',
-      'Ponto central de localização do estabelecimento ajustado',
-    ]},
-    { g: 'Firebird', a: [
-      'Firebird reinstalado do zero',
-      'Serviço do Firebird reiniciado',
-      'Firebird padrão reinstalado',
-      'Firebird exclusivo removido',
-      'Comunicação do Firebird com o Consumer validada',
-      'Recuperação do banco de dados realizada',
-    ]},
-    { g: 'Orientação', a: [
-      'Responsável orientado quanto ao procedimento',
-      'Responsável orientado sobre possíveis impactos e prevenção',
-      'Manual do Consumer indicado ao cliente',
-      'Consumer Connect (relatórios online) demonstrado',
-      'CRM verificado e orientações repassadas ao cliente',
-      'Cliente orientado a solicitar visita de técnico local / suporte próprio',
-    ]},
+    { g: 'Instalação e Sistema', a: ['Acesso remoto estabelecido (RustDesk)','Consumer aberto e versão verificada','Atualização do Consumer executada','Consumer reiniciado','Bloqueio de antivírus/UAC verificado','Ativação/licença verificada','Backup realizado antes da intervenção','Reinstalação do Consumer realizada'] },
+    { g: 'Rede e Conectividade', a: ['Teste de conectividade com a internet','IP fixo verificado/configurado no servidor','Versão rede verificada entre computadores','VPN (Hamachi/Radmin) configurada','Reconexão entre PC servidor e PC cliente realizada','Alteração de métricas de rede realizada'] },
+    { g: 'Impressoras e Hardware', a: ['Impressora instalada e configurada no Consumer','Driver da impressora reinstalado','Local de produção vinculado aos produtos','Teste de impressão realizado com resultado positivo','Gaveta de dinheiro verificada','Balança instalada e configurada no Consumer'] },
+    { g: 'Fiscal', a: ['Módulo fiscal verificado (NFC-e/NF-e)','Emissor fiscal componente configurado','Certificado digital verificado/atualizado','Rejeição de cupom fiscal identificada e corrigida','Validação e testes de emissão fiscal realizados com resultado positivo','Emissão de cupom fiscal em lote realizada','Arquivos XML exportados ao contador','Cancelamento de NFC-e/NF-e realizado'] },
+    { g: 'Pedidos e Integrações', a: ['Módulo Mobile instalado e validado','Integração iFood verificada','Integração 99Food verificada','Integração Keeta verificada','Bot WhatsApp verificado','App do Entregador verificado','Monitor de Preparo verificado','Recebimento via PIX configurado','Totem verificado/configurado','Integração via API do parceiro configurada','SmartPOS verificado/configurado','Serviços logísticos verificados'] },
+    { g: 'MenuDino', a: ['MenuDino configurado e validado','Chave Google Maps configurada no Consumer','Recebimento via PIX configurado','Produtos em destaque no MenuDino configurados','Conta Google Play Developer criada/configurada','Ponto central de localização do estabelecimento ajustado'] },
+    { g: 'Firebird', a: ['Firebird reinstalado do zero','Serviço do Firebird reiniciado','Firebird padrão reinstalado','Firebird exclusivo removido','Comunicação do Firebird com o Consumer validada','Recuperação do banco de dados realizada'] },
+    { g: 'Orientação', a: ['Responsável orientado quanto ao procedimento','Responsável orientado sobre possíveis impactos e prevenção','Manual do Consumer indicado ao cliente','Consumer Connect (relatórios online) demonstrado','CRM verificado e orientações repassadas ao cliente','Cliente orientado a solicitar visita de técnico local / suporte próprio'] },
   ];
 
   const DESFECHOS = [
-    { l: 'Resolvido',     cls: 'df-ok',   bloco: '✅ DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
-    { l: 'Parcial',       cls: 'df-warn', bloco: '⚠️ DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
-    { l: 'Análise Q.A',   cls: 'df-info', bloco: '🔍 DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
-    { l: 'Ag. cliente',   cls: 'df-gray', bloco: '⏳ DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
+    { l: 'Resolvido',   bloco: '✅ DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
+    { l: 'Parcial',     bloco: '⚠️ DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
+    { l: 'Análise Q.A', bloco: '🔍 DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
+    { l: 'Ag. cliente', bloco: '⏳ DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
   ];
 
   const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento.';
@@ -136,7 +70,6 @@
     [/reinstalação do consumer realizada/i,       '• Reinstalamos o sistema completo'],
     [/backup realizado/i,                         '• Realizamos uma cópia de segurança dos dados'],
     [/bloqueio de antivírus.*verificado/i,        '• Verificamos as permissões de segurança do computador'],
-    [/ativação\/licença verificada/i,             '• Verificamos a licença de uso do sistema'],
     [/ip fixo.*configurado/i,                     '• Configuramos o endereço de rede do servidor'],
     [/vpn.*configurada/i,                         '• Configuramos a conexão entre os computadores da loja'],
     [/reconexão entre pc servidor/i,              '• Restabelecemos a comunicação entre os computadores da loja'],
@@ -149,10 +82,10 @@
     [/módulo fiscal verificado/i,                 '• Verificamos o módulo de emissão de notas fiscais'],
     [/certificado digital verificado\/atualizado/i,'• Atualizamos o certificado digital do estabelecimento'],
     [/rejeição de cupom fiscal.*corrigida/i,      '• Identificamos e corrigimos a rejeição de cupons fiscais'],
-    [/validação e testes de emissão fiscal.*positivo/i, '• Realizamos testes de emissão fiscal com resultado positivo'],
+    [/validação e testes de emissão fiscal/i,     '• Realizamos testes de emissão fiscal com resultado positivo'],
     [/emissão de cupom fiscal em lote/i,          '• Emitimos os cupons fiscais pendentes em lote'],
     [/arquivos xml exportados/i,                  '• Exportamos os arquivos fiscais para o contador'],
-    [/cancelamento de nfc-e\/nf-e/i,              '• Realizamos o cancelamento das notas fiscais solicitadas'],
+    [/cancelamento de nfc-e/i,                    '• Realizamos o cancelamento das notas fiscais solicitadas'],
     [/integração ifood verificada/i,              '• Verificamos o recebimento de pedidos pelo iFood'],
     [/integração 99food verificada/i,             '• Verificamos o recebimento de pedidos pelo 99Food'],
     [/integração keeta verificada/i,              '• Verificamos o recebimento de pedidos pelo Keeta'],
@@ -161,11 +94,11 @@
     [/app do entregador verificado/i,             '• Verificamos o funcionamento do App do Entregador'],
     [/monitor de preparo verificado/i,            '• Verificamos o funcionamento do Monitor de Preparo'],
     [/recebimento via pix configurado/i,          '• Configuramos o recebimento de pagamentos via PIX'],
-    [/totem verificado\/configurado/i,            '• Verificamos e configuramos o totem de autoatendimento'],
-    [/módulo mobile instalado e validado/i,       '• Instalamos e validamos o módulo de atendimento pelo celular'],
-    [/máquina tef verificada\/integrada/i,        '• Verificamos e integramos a maquininha de cartão'],
+    [/totem verificado/i,                         '• Verificamos e configuramos o totem de autoatendimento'],
+    [/módulo mobile instalado/i,                  '• Instalamos e validamos o módulo de atendimento pelo celular'],
+    [/máquina tef verificada/i,                   '• Verificamos e integramos a maquininha de cartão'],
     [/integração via api do parceiro/i,           '• Configuramos a integração com o sistema do parceiro'],
-    [/menudino configurado e validado/i,          '• Configuramos e validamos o cardápio online'],
+    [/menudino configurado/i,                     '• Configuramos e validamos o cardápio online'],
     [/chave google maps configurada/i,            '• Configuramos a integração com o mapa para entregas'],
     [/firebird.*reinstalado.*zero/i,              '• Reinstalamos o banco de dados do sistema do zero'],
     [/firebird padrão reinstalado/i,              '• Restauramos o banco de dados do sistema'],
@@ -173,741 +106,604 @@
     [/serviço do firebird reiniciado/i,           '• Reiniciamos o serviço de banco de dados'],
     [/comunicação do firebird.*validada/i,        '• Validamos a comunicação do banco de dados com o sistema'],
     [/recuperação do banco de dados/i,            '• Recuperamos o banco de dados do sistema'],
-    [/responsável orientado quanto ao procedimento/i, '• Orientamos o responsável sobre os procedimentos realizados'],
+    [/responsável orientado quanto/i,             '• Orientamos o responsável sobre os procedimentos realizados'],
     [/responsável orientado sobre.*impactos/i,    '• Orientamos o responsável sobre possíveis impactos e prevenção'],
     [/manual do consumer indicado/i,              '• Indicamos o manual do sistema para consulta'],
     [/consumer connect.*demonstrado/i,            '• Apresentamos o portal de relatórios online'],
-    [/crm verificado.*orientações/i,              '• Verificamos o CRM e repassamos orientações'],
-    [/cliente orientado.*visita de técnico/i,     '• Orientamos o cliente a solicitar suporte técnico presencial'],
+    [/crm verificado/i,                           '• Verificamos o CRM e repassamos orientações'],
+    [/cliente orientado.*visita/i,                '• Orientamos o cliente a solicitar suporte técnico presencial'],
   ];
 
-  function buildResumoTecnico(steps, df, obs) {
-    let txt = steps.map((s, i) => `${i + 1}. ${s}`).join('\n');
-    txt += `\n${FRASE_FINAL}`;
-    if (obs) txt += `\n\nObservação: ${obs}`;
+  function buildTec(steps, df, obs) {
+    let txt = steps.map((s, i) => `${i+1}. ${s}`).join('\n');
+    txt += '\n' + FRASE_FINAL;
+    if (obs) txt += '\n\nObservação: ' + obs;
     const d = DESFECHOS.find(x => x.l === df);
-    if (d) txt += `\n\n${d.bloco}`;
+    if (d) txt += '\n\n' + d.bloco;
     return txt;
   }
 
-  function buildResumoCliente(steps, df, obs) {
+  function buildCli(steps, df, obs) {
     const itens = [];
     for (const step of steps) {
       for (const [re, texto] of TRADUCOES) {
         if (re.test(step) && !itens.includes(texto)) { itens.push(texto); break; }
       }
     }
-    if (itens.length === 0) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
-    if (obs) itens.push(`• ${obs}`);
-    const desfechoMap = {
+    if (!itens.length) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
+    if (obs) itens.push('• ' + obs);
+    const dm = {
       'Resolvido':   '\nO problema foi resolvido durante este atendimento.',
       'Parcial':     '\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
       'Análise Q.A': '\nO caso foi encaminhado para análise aprofundada da nossa equipe.',
       'Ag. cliente': '\nO atendimento está aguardando seu retorno para continuidade.',
     };
     let txt = itens.join('\n');
-    if (df && desfechoMap[df]) txt += `\n${desfechoMap[df]}`;
+    if (df && dm[df]) txt += dm[df];
     txt += '\n\nCaso tenha qualquer dúvida, estamos à disposição.';
     return txt;
   }
 
-  // ─── Botão flutuante (fora do iframe) ───────────────────────────────────
+  // ─── Estado ──────────────────────────────────────────────────────────────
+  let selectedSteps = [];
+  let selectedDf = '';
+  let activeTab = 'tec';
+  let resumoTec = '';
+  let resumoCli = '';
+  let showConfirm = false;
+
+  // ─── Overlay + Modal (injetados no document.documentElement) ─────────────
+  const overlay = document.createElement('div');
+  Object.assign(overlay.style, {
+    position: 'fixed', inset: '0',
+    background: 'rgba(0,0,0,0.5)',
+    zIndex: '2147483640',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+  });
+
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    background: '#fff',
+    borderRadius: '12px',
+    width: '520px',
+    maxWidth: '95vw',
+    maxHeight: '90vh',
+    display: 'flex',
+    flexDirection: 'column',
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontSize: '13px',
+    color: '#111',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+    overflow: 'hidden',
+  });
+
+  // Header
+  const hdr = document.createElement('div');
+  Object.assign(hdr.style, {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    padding: '14px 18px', background: '#1F93FF', color: '#fff', flexShrink: '0',
+  });
+  hdr.innerHTML = '<span style="font-size:15px;font-weight:700;">🔗 Nexos</span>';
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '×';
+  Object.assign(closeBtn.style, {
+    background: 'none', border: 'none', color: '#fff',
+    fontSize: '22px', cursor: 'pointer', lineHeight: '1', padding: '0 4px',
+  });
+  hdr.appendChild(closeBtn);
+  modal.appendChild(hdr);
+
+  // Body (scrollável)
+  const body = document.createElement('div');
+  Object.assign(body.style, {
+    flex: '1', overflowY: 'auto', padding: '14px',
+    display: 'flex', flexDirection: 'column', gap: '10px',
+  });
+  modal.appendChild(body);
+
+  // Footer
+  const ftr = document.createElement('div');
+  Object.assign(ftr.style, {
+    padding: '12px 14px', borderTop: '1px solid #e5e7eb',
+    display: 'flex', flexDirection: 'column', gap: '6px',
+    flexShrink: '0', background: '#f9fafb',
+  });
+  modal.appendChild(ftr);
+
+  overlay.appendChild(modal);
+  document.documentElement.appendChild(overlay);
+
+  // ─── Helpers de estilo ────────────────────────────────────────────────────
+  function sec(title) {
+    const wrap = document.createElement('div');
+    Object.assign(wrap.style, { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' });
+    const t = document.createElement('div');
+    Object.assign(t.style, {
+      fontSize: '11px', fontWeight: '700', color: '#6b7280',
+      textTransform: 'uppercase', letterSpacing: '.06em',
+      padding: '8px 10px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb',
+    });
+    t.textContent = title;
+    const b = document.createElement('div');
+    b.style.padding = '8px 10px';
+    wrap.appendChild(t); wrap.appendChild(b);
+    return { wrap, title: t, body: b };
+  }
+
+  function btn(text, style = {}) {
+    const b = document.createElement('button');
+    b.textContent = text;
+    Object.assign(b.style, {
+      padding: '9px 12px', borderRadius: '7px', border: 'none',
+      fontSize: '13px', fontWeight: '600', cursor: 'pointer',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+      width: '100%', fontFamily: 'inherit', ...style,
+    });
+    return b;
+  }
+
+  function inp(placeholder, type = 'text') {
+    const i = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+    if (type !== 'textarea') i.type = type;
+    i.placeholder = placeholder;
+    Object.assign(i.style, {
+      width: '100%', padding: '7px 8px', border: '1px solid #e5e7eb',
+      borderRadius: '6px', fontSize: '12px', color: '#111',
+      fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+    });
+    i.addEventListener('focus', () => i.style.borderColor = '#1F93FF');
+    i.addEventListener('blur', () => i.style.borderColor = '#e5e7eb');
+    return i;
+  }
+
+  function stepBtn(label) {
+    const b = document.createElement('button');
+    b.dataset.label = label;
+    Object.assign(b.style, {
+      textAlign: 'left', padding: '6px 8px', borderRadius: '6px',
+      border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer',
+      fontSize: '12px', color: '#374151', display: 'flex',
+      alignItems: 'center', gap: '6px', width: '100%',
+    });
+    const chk = document.createElement('span');
+    Object.assign(chk.style, {
+      width: '14px', height: '14px', borderRadius: '3px',
+      border: '1.5px solid #d1d5db', flexShrink: '0',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: '10px',
+    });
+    const lbl = document.createElement('span');
+    lbl.textContent = label;
+    b.appendChild(chk); b.appendChild(lbl);
+    b.addEventListener('click', () => toggleStep(label));
+    return b;
+  }
+
+  function updateStepBtn(b) {
+    const sel = selectedSteps.includes(b.dataset.label);
+    b.style.background = sel ? '#eff6ff' : '#fff';
+    b.style.borderColor = sel ? '#1F93FF' : '#e5e7eb';
+    b.style.color = sel ? '#1F93FF' : '#374151';
+    const chk = b.querySelector('span');
+    chk.textContent = sel ? '✓' : '';
+    chk.style.background = sel ? '#1F93FF' : '#fff';
+    chk.style.borderColor = sel ? '#1F93FF' : '#d1d5db';
+    chk.style.color = '#fff';
+  }
+
+  // ─── Seção Token ─────────────────────────────────────────────────────────
+  const tokenSec = sec('🔑 Token do Chatwoot');
+  const tokenRow = document.createElement('div');
+  tokenRow.style.cssText = 'display:flex;gap:6px;';
+  const tokenInp = inp('Cole seu token de acesso...', 'password');
+  tokenInp.style.flex = '1';
+  tokenInp.value = GM_getValue('nexos_token', '');
+  const tokenSaveBtn = document.createElement('button');
+  tokenSaveBtn.textContent = 'Salvar';
+  Object.assign(tokenSaveBtn.style, {
+    padding: '7px 12px', borderRadius: '6px', border: '1px solid #d1d5db',
+    background: '#fff', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
+  });
+  const tokenHint = document.createElement('div');
+  tokenHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-top:5px;';
+  tokenHint.textContent = 'Chatwoot → Configurações → Perfil → Token de acesso';
+  const tokenStatus = document.createElement('div');
+  tokenStatus.style.cssText = 'font-size:11px;color:#16a34a;margin-top:4px;display:none;';
+  tokenSaveBtn.addEventListener('click', () => {
+    const v = tokenInp.value.trim();
+    GM_setValue('nexos_token', v);
+    tokenStatus.textContent = v ? '✓ Token salvo' : '✓ Token removido';
+    tokenStatus.style.display = 'block';
+    setTimeout(() => tokenStatus.style.display = 'none', 2000);
+  });
+  tokenRow.appendChild(tokenInp); tokenRow.appendChild(tokenSaveBtn);
+  tokenSec.body.appendChild(tokenRow);
+  tokenSec.body.appendChild(tokenHint);
+  tokenSec.body.appendChild(tokenStatus);
+  body.appendChild(tokenSec.wrap);
+
+  // ─── Seção Passos ─────────────────────────────────────────────────────────
+  const stepsSec = sec('📋 Passos realizados');
+  const badge = document.createElement('span');
+  Object.assign(badge.style, {
+    background: '#1F93FF', color: '#fff', borderRadius: '99px',
+    fontSize: '10px', fontWeight: '700', padding: '1px 7px', display: 'none',
+  });
+  stepsSec.title.style.display = 'flex';
+  stepsSec.title.style.justifyContent = 'space-between';
+  stepsSec.title.style.alignItems = 'center';
+  stepsSec.title.appendChild(badge);
+
+  const favLabel = document.createElement('div');
+  favLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;';
+  favLabel.textContent = '⭐ Mais usados';
+  stepsSec.body.appendChild(favLabel);
+
+  const favGrid = document.createElement('div');
+  favGrid.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+  FAV.forEach(l => favGrid.appendChild(stepBtn(l)));
+  stepsSec.body.appendChild(favGrid);
+
+  const catsLabel = document.createElement('div');
+  catsLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
+  catsLabel.textContent = '📂 Outras ações';
+  stepsSec.body.appendChild(catsLabel);
+
+  const catsWrap = document.createElement('div');
+  CATS.forEach(cat => {
+    const catBtn2 = document.createElement('button');
+    Object.assign(catBtn2.style, {
+      width: '100%', textAlign: 'left', padding: '7px 10px',
+      border: 'none', borderBottom: '1px solid #e5e7eb',
+      background: '#f3f4f6', cursor: 'pointer', fontSize: '12px',
+      fontWeight: '600', color: '#374151', display: 'flex',
+      alignItems: 'center', justifyContent: 'space-between',
+    });
+    const arr = document.createElement('span');
+    arr.textContent = '▸';
+    catBtn2.appendChild(document.createTextNode(cat.g));
+    catBtn2.appendChild(arr);
+
+    const content = document.createElement('div');
+    content.style.cssText = 'display:none;flex-direction:column;gap:4px;padding:8px 10px;border-bottom:1px solid #e5e7eb;';
+    cat.a.forEach(l => content.appendChild(stepBtn(l)));
+
+    catBtn2.addEventListener('click', () => {
+      const open = content.style.display !== 'none';
+      catsWrap.querySelectorAll('[data-content]').forEach(el => { el.style.display = 'none'; });
+      catsWrap.querySelectorAll('[data-arr]').forEach(el => { el.textContent = '▸'; });
+      if (!open) { content.style.display = 'flex'; arr.textContent = '▾'; }
+    });
+
+    content.dataset.content = '1';
+    arr.dataset.arr = '1';
+    catsWrap.appendChild(catBtn2);
+    catsWrap.appendChild(content);
+  });
+  stepsSec.body.appendChild(catsWrap);
+
+  const customRow = document.createElement('div');
+  customRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
+  const customInp = inp('Ação personalizada...');
+  customInp.style.flex = '1';
+  const customAddBtn = document.createElement('button');
+  customAddBtn.textContent = '+ Adicionar';
+  Object.assign(customAddBtn.style, {
+    padding: '7px 10px', borderRadius: '6px',
+    border: '1px solid #1F93FF', background: '#eff6ff',
+    color: '#1F93FF', fontSize: '12px', fontWeight: '600', cursor: 'pointer',
+  });
+  customAddBtn.addEventListener('click', addCustom);
+  customInp.addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
+  function addCustom() {
+    const v = customInp.value.trim();
+    if (!v) return;
+    toggleStep(v);
+    customInp.value = '';
+  }
+  customRow.appendChild(customInp); customRow.appendChild(customAddBtn);
+  stepsSec.body.appendChild(customRow);
+  body.appendChild(stepsSec.wrap);
+
+  // ─── Seção Selecionados ───────────────────────────────────────────────────
+  const selSec = sec('✅ Passos selecionados');
+  selSec.wrap.style.display = 'none';
+  const selList = document.createElement('div');
+  selList.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  selSec.body.appendChild(selList);
+  body.appendChild(selSec.wrap);
+
+  // ─── Seção Desfecho ───────────────────────────────────────────────────────
+  const dfSec = sec('🏁 Desfecho');
+  const dfGrid = document.createElement('div');
+  dfGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;';
+  const dfCls = [
+    { sel: 'bg:#dcfce7;border:1px solid #16a34a;color:#15803d;', def: '' },
+    { sel: 'bg:#fef9c3;border:1px solid #ca8a04;color:#a16207;', def: '' },
+    { sel: 'bg:#eff6ff;border:1px solid #1F93FF;color:#1677d2;', def: '' },
+    { sel: 'bg:#f3f4f6;border:1px solid #6b7280;color:#374151;', def: '' },
+  ];
+  DESFECHOS.forEach((d, i) => {
+    const b = document.createElement('button');
+    b.textContent = d.l;
+    b.dataset.df = d.l;
+    Object.assign(b.style, {
+      padding: '7px', borderRadius: '6px', border: '1px solid #e5e7eb',
+      background: '#fff', cursor: 'pointer', fontSize: '12px',
+      fontWeight: '500', color: '#374151', textAlign: 'center',
+    });
+    b.addEventListener('click', () => {
+      selectedDf = selectedDf === d.l ? '' : d.l;
+      renderDf();
+      resetResult();
+    });
+    dfGrid.appendChild(b);
+  });
+  dfSec.body.appendChild(dfGrid);
+  body.appendChild(dfSec.wrap);
+
+  // ─── Seção Observação ─────────────────────────────────────────────────────
+  const obsSec = sec('📝 Observação adicional (opcional)');
+  const obsInp = inp('Ex: cliente orientado sobre certificado digital', 'textarea');
+  obsInp.rows = 2;
+  obsInp.style.resize = 'vertical';
+  obsSec.body.appendChild(obsInp);
+  body.appendChild(obsSec.wrap);
+
+  // ─── Footer ───────────────────────────────────────────────────────────────
+  // Tabs
+  const tabBar = document.createElement('div');
+  tabBar.style.cssText = 'display:flex;gap:4px;';
+  const tabTec = document.createElement('button');
+  const tabCli = document.createElement('button');
+  [tabTec, tabCli].forEach((t, i) => {
+    t.textContent = i === 0 ? 'Resumo técnico' : 'Para o cliente';
+    Object.assign(t.style, {
+      flex: '1', padding: '6px', borderRadius: '6px',
+      border: '1px solid #e5e7eb', background: '#fff',
+      fontSize: '12px', fontWeight: '500', cursor: 'pointer', color: '#6b7280',
+    });
+  });
+  tabTec.style.background = '#eff6ff';
+  tabTec.style.borderColor = '#1F93FF';
+  tabTec.style.color = '#1F93FF';
+  tabTec.style.fontWeight = '600';
+  tabBar.appendChild(tabTec); tabBar.appendChild(tabCli);
+  ftr.appendChild(tabBar);
+
+  tabTec.addEventListener('click', () => setTab('tec'));
+  tabCli.addEventListener('click', () => setTab('cli'));
+
+  // Preview
+  const preview = document.createElement('div');
+  Object.assign(preview.style, {
+    background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '7px',
+    padding: '10px', fontSize: '12px', lineHeight: '1.7',
+    whiteSpace: 'pre-wrap', color: '#111', maxHeight: '160px',
+    overflowY: 'auto', display: 'none',
+  });
+  ftr.appendChild(preview);
+
+  // Confirm box
+  const confirmBox = document.createElement('div');
+  Object.assign(confirmBox.style, {
+    padding: '10px', background: '#fefce8', border: '1px solid #fde047',
+    borderRadius: '7px', fontSize: '12px', color: '#854d0e',
+    display: 'none', flexDirection: 'column', gap: '8px',
+  });
+  confirmBox.innerHTML = '<div><strong>⚠️ Nota pública</strong><br>Esta nota ficará visível para o cliente no Chatwoot. Confirma?</div>';
+  const confirmActions = document.createElement('div');
+  confirmActions.style.cssText = 'display:flex;gap:6px;';
+  const confirmYes = btn('Confirmar', { background: '#1F93FF', color: '#fff', flex: '1' });
+  const confirmNo = btn('Cancelar', { background: '#fff', color: '#374151', border: '1px solid #d1d5db', flex: '1' });
+  confirmActions.appendChild(confirmYes); confirmActions.appendChild(confirmNo);
+  confirmBox.appendChild(confirmActions);
+  ftr.appendChild(confirmBox);
+
+  confirmNo.addEventListener('click', () => { confirmBox.style.display = 'none'; });
+  confirmYes.addEventListener('click', () => { confirmBox.style.display = 'none'; sendNote(false); });
+
+  // Status
+  const statusEl = document.createElement('div');
+  statusEl.style.cssText = 'font-size:12px;text-align:center;padding:4px;display:none;';
+  ftr.appendChild(statusEl);
+
+  // Botão gerar
+  const btnGerar = btn('Gerar resumo', { background: '#1F93FF', color: '#fff' });
+  ftr.appendChild(btnGerar);
+
+  // Action btns
+  const actionBtns = document.createElement('div');
+  actionBtns.style.cssText = 'display:none;flex-direction:column;gap:6px;';
+  const btnCopy    = btn('📋 Copiar texto', { background: '#fff', color: '#374151', border: '1px solid #d1d5db' });
+  const btnPrivate = btn('🔒 Enviar nota privada', { background: '#fff', color: '#374151', border: '1px solid #d1d5db' });
+  const btnPublic  = btn('👁 Enviar ao cliente (nota pública)', { background: '#fff', color: '#dc2626', border: '1px solid #fca5a5' });
+  const btnReset   = btn('↺ Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
+  [btnCopy, btnPrivate, btnPublic, btnReset].forEach(b => actionBtns.appendChild(b));
+  ftr.appendChild(actionBtns);
+
+  // ─── Lógica ───────────────────────────────────────────────────────────────
+  function toggleStep(label) {
+    selectedSteps = selectedSteps.includes(label)
+      ? selectedSteps.filter(s => s !== label)
+      : [...selectedSteps, label];
+    renderSteps();
+    resetResult();
+  }
+
+  function renderSteps() {
+    document.querySelectorAll('[data-label]').forEach(b => updateStepBtn(b));
+    badge.style.display = selectedSteps.length ? 'inline' : 'none';
+    badge.textContent = selectedSteps.length;
+    selList.innerHTML = '';
+    selSec.wrap.style.display = selectedSteps.length ? 'block' : 'none';
+    selectedSteps.forEach((s, i) => {
+      const item = document.createElement('div');
+      Object.assign(item.style, {
+        display: 'flex', alignItems: 'center', gap: '6px',
+        padding: '5px 8px', background: '#eff6ff', borderRadius: '5px',
+        fontSize: '12px', color: '#1677d2',
+      });
+      item.draggable = true;
+      item.dataset.idx = i;
+      const drag = document.createElement('span');
+      drag.textContent = '⠿'; drag.style.cssText = 'cursor:grab;color:#93c5fd;flex-shrink:0;';
+      const txt = document.createElement('span');
+      txt.textContent = s; txt.style.flex = '1';
+      const rm = document.createElement('button');
+      rm.textContent = '×';
+      Object.assign(rm.style, { marginLeft: 'auto', background: 'none', border: 'none', color: '#93c5fd', cursor: 'pointer', fontSize: '16px' });
+      rm.addEventListener('click', () => toggleStep(s));
+      item.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', i));
+      item.addEventListener('dragover', e => e.preventDefault());
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        const from = parseInt(e.dataTransfer.getData('text/plain'));
+        if (from === i) return;
+        const arr = [...selectedSteps];
+        const [el] = arr.splice(from, 1); arr.splice(i, 0, el);
+        selectedSteps = arr; renderSteps();
+      });
+      item.appendChild(drag); item.appendChild(txt); item.appendChild(rm);
+      selList.appendChild(item);
+    });
+  }
+
+  function renderDf() {
+    const colors = [
+      { bg: '#dcfce7', border: '#16a34a', color: '#15803d' },
+      { bg: '#fef9c3', border: '#ca8a04', color: '#a16207' },
+      { bg: '#eff6ff', border: '#1F93FF',  color: '#1677d2' },
+      { bg: '#f3f4f6', border: '#6b7280',  color: '#374151' },
+    ];
+    dfGrid.querySelectorAll('button').forEach((b, i) => {
+      const sel = b.dataset.df === selectedDf;
+      b.style.background = sel ? colors[i].bg : '#fff';
+      b.style.borderColor = sel ? colors[i].border : '#e5e7eb';
+      b.style.color = sel ? colors[i].color : '#374151';
+    });
+  }
+
+  function setTab(tab) {
+    activeTab = tab;
+    const on = { background: '#eff6ff', borderColor: '#1F93FF', color: '#1F93FF', fontWeight: '600' };
+    const off = { background: '#fff', borderColor: '#e5e7eb', color: '#6b7280', fontWeight: '500' };
+    Object.assign(tabTec.style, tab === 'tec' ? on : off);
+    Object.assign(tabCli.style, tab === 'cli' ? on : off);
+    const txt = tab === 'tec' ? resumoTec : resumoCli;
+    if (txt) { preview.textContent = txt; preview.style.display = 'block'; }
+    else preview.style.display = 'none';
+    confirmBox.style.display = 'none';
+    clearStatus();
+  }
+
+  function resetResult() {
+    resumoTec = ''; resumoCli = '';
+    preview.style.display = 'none';
+    btnGerar.style.display = 'flex';
+    actionBtns.style.display = 'none';
+    confirmBox.style.display = 'none';
+    clearStatus();
+  }
+
+  function showStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.style.color = type === 'ok' ? '#16a34a' : '#dc2626';
+    statusEl.style.display = 'block';
+  }
+  function clearStatus() { statusEl.style.display = 'none'; }
+
+  btnGerar.addEventListener('click', () => {
+    if (!selectedSteps.length) { showStatus('Selecione ao menos um passo.', 'err'); return; }
+    const obs = obsInp.value.trim();
+    resumoTec = buildTec(selectedSteps, selectedDf, obs);
+    resumoCli = buildCli(selectedSteps, selectedDf, obs);
+    preview.textContent = activeTab === 'tec' ? resumoTec : resumoCli;
+    preview.style.display = 'block';
+    btnGerar.style.display = 'none';
+    actionBtns.style.display = 'flex';
+    clearStatus();
+  });
+
+  btnCopy.addEventListener('click', () => {
+    const txt = activeTab === 'tec' ? resumoTec : resumoCli;
+    navigator.clipboard.writeText(txt)
+      .then(() => showStatus('✓ Copiado!', 'ok'))
+      .catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        Object.assign(ta.style, { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' });
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        showStatus('✓ Copiado!', 'ok');
+      });
+  });
+
+  btnPrivate.addEventListener('click', () => sendNote(true));
+  btnPublic.addEventListener('click', () => { confirmBox.style.display = 'flex'; clearStatus(); });
+
+  function sendNote(isPrivate) {
+    const token = GM_getValue('nexos_token', '').trim();
+    if (!token) { showStatus('Configure o token do Chatwoot primeiro.', 'err'); return; }
+    const ids = getIdsFromUrl();
+    if (!ids) { showStatus('Não foi possível identificar a conversa.', 'err'); return; }
+    const content = isPrivate ? resumoTec : resumoCli;
+    btnPrivate.disabled = true; btnPublic.disabled = true;
+    showStatus('Enviando...', '');
+    GM_xmlhttpRequest({
+      method: 'POST',
+      url: `https://app.chatwoot.com/api/v1/accounts/${ids.accountId}/conversations/${ids.conversationId}/messages`,
+      headers: { 'Content-Type': 'application/json', 'api_access_token': token },
+      data: JSON.stringify({ content, message_type: 'outgoing', private: isPrivate }),
+      onload: r => {
+        btnPrivate.disabled = false; btnPublic.disabled = false;
+        showStatus(r.status >= 200 && r.status < 300
+          ? (isPrivate ? '✓ Nota privada enviada!' : '✓ Nota pública enviada ao cliente!')
+          : 'Erro ao enviar. Verifique o token.', r.status >= 200 && r.status < 300 ? 'ok' : 'err');
+      },
+      onerror: () => { btnPrivate.disabled = false; btnPublic.disabled = false; showStatus('Erro ao enviar.', 'err'); },
+    });
+  }
+
+  btnReset.addEventListener('click', () => {
+    selectedSteps = []; selectedDf = '';
+    obsInp.value = ''; customInp.value = '';
+    renderSteps(); renderDf(); resetResult();
+    catsWrap.querySelectorAll('[data-content]').forEach(el => el.style.display = 'none');
+    catsWrap.querySelectorAll('[data-arr]').forEach(el => el.textContent = '▸');
+  });
+
+  // ─── Botão flutuante ──────────────────────────────────────────────────────
   const toggleBtn = document.createElement('button');
-  toggleBtn.id = 'nexos-toggle-outer';
   toggleBtn.textContent = 'NEXOS';
   Object.assign(toggleBtn.style, {
-    position: 'fixed',
-    right: '0',
-    top: '50%',
+    position: 'fixed', right: '0', top: '50%',
     transform: 'translateY(-50%)',
     zIndex: '2147483647',
-    background: '#1F93FF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '8px 0 0 8px',
-    padding: '10px 6px',
-    cursor: 'pointer',
-    fontSize: '11px',
-    fontWeight: '700',
-    letterSpacing: '.05em',
-    writingMode: 'vertical-rl',
+    background: '#1F93FF', color: '#fff', border: 'none',
+    borderRadius: '8px 0 0 8px', padding: '10px 6px',
+    cursor: 'pointer', fontSize: '11px', fontWeight: '700',
+    letterSpacing: '.05em', writingMode: 'vertical-rl',
     boxShadow: '-2px 0 8px rgba(0,0,0,.18)',
   });
   document.documentElement.appendChild(toggleBtn);
 
-  // ─── iframe isolado ──────────────────────────────────────────────────────
-  const iframe = document.createElement('iframe');
-  iframe.id = 'nexos-iframe';
-  Object.assign(iframe.style, {
-    position: 'fixed',
-    right: '0',
-    top: '0',
-    width: '360px',
-    height: '100vh',
-    border: 'none',
-    zIndex: '2147483646',
-    display: 'none',
-    boxShadow: '-4px 0 24px rgba(0,0,0,.15)',
-  });
-  document.documentElement.appendChild(iframe);
-
-  // ─── Conteúdo do iframe ──────────────────────────────────────────────────
-  const iframeContent = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 13px;
-  color: #111;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-#hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  background: #1F93FF;
-  color: #fff;
-  flex-shrink: 0;
-}
-#hdr h2 { font-size: 14px; font-weight: 700; }
-#close-btn {
-  background: none; border: none; color: #fff;
-  cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px;
-}
-#body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.sec {
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  overflow: hidden;
-}
-.sec-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  padding: 8px 10px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.sec-body { padding: 8px 10px; }
-.sub-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #6b7280;
-  margin-bottom: 6px;
-}
-.steps-grid { display: flex; flex-direction: column; gap: 4px; }
-.step-btn {
-  text-align: left;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  width: 100%;
-  transition: all .1s;
-}
-.step-btn:hover { border-color: #1F93FF; color: #1F93FF; }
-.step-btn.sel { background: #eff6ff; border-color: #1F93FF; color: #1F93FF; font-weight: 500; }
-.chk {
-  width: 14px; height: 14px; border-radius: 3px;
-  border: 1.5px solid #d1d5db;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-}
-.step-btn.sel .chk { background: #1F93FF; border-color: #1F93FF; color: #fff; }
-.cat-btn {
-  width: 100%;
-  text-align: left;
-  padding: 7px 10px;
-  border: none;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f3f4f6;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.cat-btn:last-of-type { border-bottom: none; }
-.cat-btn:hover { background: #e5e7eb; }
-.cat-content {
-  padding: 8px 10px;
-  border-bottom: 1px solid #e5e7eb;
-  display: none;
-  flex-direction: column;
-  gap: 4px;
-}
-.cat-content.open { display: flex; }
-.df-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.df-btn {
-  padding: 7px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 500;
-  color: #374151;
-  text-align: center;
-}
-.df-btn:hover { border-color: #6b7280; }
-.df-btn.df-ok   { background: #dcfce7; border-color: #16a34a; color: #15803d; }
-.df-btn.df-warn { background: #fef9c3; border-color: #ca8a04; color: #a16207; }
-.df-btn.df-info { background: #eff6ff; border-color: #1F93FF; color: #1677d2; }
-.df-btn.df-gray { background: #f3f4f6; border-color: #6b7280; color: #374151; }
-.sel-list { display: flex; flex-direction: column; gap: 3px; }
-.sel-item {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 8px;
-  background: #eff6ff;
-  border-radius: 5px;
-  font-size: 12px;
-  color: #1677d2;
-}
-.sel-item .rm {
-  margin-left: auto;
-  background: none; border: none;
-  color: #93c5fd; cursor: pointer;
-  font-size: 16px; line-height: 1;
-  flex-shrink: 0;
-}
-.sel-item .rm:hover { color: #1F93FF; }
-.drag-h { cursor: grab; color: #93c5fd; font-size: 12px; flex-shrink: 0; }
-input, textarea {
-  width: 100%;
-  padding: 7px 8px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  font-size: 12px;
-  color: #111;
-  font-family: inherit;
-  outline: none;
-}
-input:focus, textarea:focus { border-color: #1F93FF; }
-textarea { resize: vertical; }
-.custom-row { display: flex; gap: 6px; margin-top: 6px; }
-.custom-row input { flex: 1; }
-.add-btn {
-  padding: 7px 10px;
-  border-radius: 6px;
-  border: 1px solid #1F93FF;
-  background: #eff6ff;
-  color: #1F93FF;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.add-btn:hover { background: #1F93FF; color: #fff; }
-.badge {
-  background: #1F93FF; color: #fff;
-  border-radius: 99px;
-  font-size: 10px; font-weight: 700;
-  min-width: 18px; height: 18px;
-  padding: 0 5px;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-#ftr {
-  padding: 10px 12px;
-  border-top: 1px solid #e5e7eb;
-  display: flex; flex-direction: column; gap: 6px;
-  flex-shrink: 0;
-  background: #f9fafb;
-}
-.tab-bar { display: flex; gap: 4px; }
-.tab {
-  flex: 1; padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 12px; font-weight: 500;
-  cursor: pointer; text-align: center; color: #6b7280;
-}
-.tab.active { background: #eff6ff; border-color: #1F93FF; color: #1F93FF; font-weight: 600; }
-.preview {
-  background: #f9fafb; border: 1px solid #e5e7eb;
-  border-radius: 7px; padding: 10px;
-  font-size: 12px; line-height: 1.7;
-  white-space: pre-wrap; color: #111;
-  max-height: 160px; overflow-y: auto;
-  display: none;
-}
-.btn {
-  padding: 9px 12px; border-radius: 7px; border: none;
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 100%; font-family: inherit;
-}
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn-primary { background: #1F93FF; color: #fff; }
-.btn-primary:hover:not(:disabled) { background: #1677d2; }
-.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
-.btn-secondary:hover:not(:disabled) { border-color: #9ca3af; }
-.btn-danger { background: #fff; color: #dc2626; border: 1px solid #fca5a5; }
-.btn-danger:hover:not(:disabled) { background: #fee2e2; }
-.confirm-box {
-  padding: 10px; background: #fefce8;
-  border: 1px solid #fde047; border-radius: 7px;
-  font-size: 12px; color: #854d0e;
-  display: none; flex-direction: column; gap: 8px;
-}
-.confirm-box.show { display: flex; }
-.confirm-actions { display: flex; gap: 6px; }
-.confirm-actions .btn { flex: 1; }
-.status { font-size: 12px; text-align: center; padding: 4px; display: none; }
-.status.ok { color: #16a34a; }
-.status.err { color: #dc2626; }
-.token-row { display: flex; gap: 6px; }
-.token-row input { flex: 1; }
-.token-save {
-  padding: 7px 10px; border-radius: 6px;
-  border: 1px solid #d1d5db; background: #fff;
-  font-size: 12px; cursor: pointer; white-space: nowrap;
-  font-family: inherit;
-}
-.token-save:hover { border-color: #1F93FF; color: #1F93FF; }
-.hint { font-size: 11px; color: #9ca3af; margin-top: 5px; }
-.token-ok { font-size: 11px; color: #16a34a; margin-top: 4px; display: none; }
-</style>
-</head>
-<body>
-<div id="hdr">
-  <h2>🔗 Nexos</h2>
-  <button id="close-btn">×</button>
-</div>
-<div id="body">
-
-  <div class="sec">
-    <div class="sec-title">🔑 Token do Chatwoot</div>
-    <div class="sec-body">
-      <div class="token-row">
-        <input id="token-input" type="password" placeholder="Cole seu token de acesso..."/>
-        <button class="token-save" id="token-save">Salvar</button>
-      </div>
-      <div class="hint">Chatwoot → Configurações → Perfil → Token de acesso</div>
-      <div class="token-ok" id="token-ok">✓ Token salvo</div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">
-      <span>📋 Passos realizados</span>
-      <span class="badge" id="badge" style="display:none">0</span>
-    </div>
-    <div class="sec-body">
-      <div class="sub-label">⭐ Mais usados</div>
-      <div class="steps-grid" id="fav-grid"></div>
-      <div class="sub-label" style="margin-top:10px;">📂 Outras ações</div>
-      <div id="cats"></div>
-      <div class="custom-row">
-        <input id="custom-input" placeholder="Ação personalizada..."/>
-        <button class="add-btn" id="custom-add">+ Adicionar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec" id="sel-sec" style="display:none">
-    <div class="sec-title">✅ Passos selecionados</div>
-    <div class="sec-body">
-      <div class="sel-list" id="sel-list"></div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">🏁 Desfecho</div>
-    <div class="sec-body">
-      <div class="df-grid" id="df-grid"></div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-title">📝 Observação adicional (opcional)</div>
-    <div class="sec-body">
-      <textarea id="obs" rows="2" placeholder="Ex: cliente orientado sobre certificado digital"></textarea>
-    </div>
-  </div>
-
-</div>
-<div id="ftr">
-  <div class="tab-bar">
-    <button class="tab active" id="tab-tec">Resumo técnico</button>
-    <button class="tab" id="tab-cli">Para o cliente</button>
-  </div>
-  <div class="preview" id="preview"></div>
-  <div class="confirm-box" id="confirm-box">
-    <div><strong>⚠️ Nota pública</strong><br>Esta nota ficará visível para o cliente no Chatwoot. Confirma?</div>
-    <div class="confirm-actions">
-      <button class="btn btn-primary" id="confirm-yes">Confirmar</button>
-      <button class="btn btn-secondary" id="confirm-no">Cancelar</button>
-    </div>
-  </div>
-  <div class="status" id="status"></div>
-  <button class="btn btn-primary" id="btn-gerar">Gerar resumo</button>
-  <div id="action-btns" style="display:none;flex-direction:column;gap:6px;">
-    <button class="btn btn-secondary" id="btn-copy">📋 Copiar texto</button>
-    <button class="btn btn-secondary" id="btn-private">🔒 Enviar nota privada</button>
-    <button class="btn btn-danger" id="btn-public">👁 Enviar ao cliente (nota pública)</button>
-    <button class="btn btn-secondary" id="btn-reset" style="font-size:12px;color:#9ca3af;border-color:#e5e7eb;">↺ Novo chamado</button>
-  </div>
-</div>
-<script>
-// Estado
-let steps = [];
-let df = '';
-let activeTab = 'tec';
-let resumoTec = '';
-let resumoCli = '';
-
-const FAV = ${JSON.stringify(FAV)};
-const CATS = ${JSON.stringify(CATS)};
-const DESFECHOS = ${JSON.stringify(DESFECHOS)};
-const TRADUCOES_RE = ${JSON.stringify(TRADUCOES.map(([re, txt]) => [re.source, re.flags, txt]))};
-const FRASE_FINAL = ${JSON.stringify(FRASE_FINAL)};
-
-function buildTec(steps, df, obs) {
-  let txt = steps.map((s,i) => (i+1)+'. '+s).join('\\n');
-  txt += '\\n' + FRASE_FINAL;
-  if (obs) txt += '\\n\\nObservação: ' + obs;
-  const d = DESFECHOS.find(x => x.l === df);
-  if (d) txt += '\\n\\n' + d.bloco;
-  return txt;
-}
-
-function buildCli(steps, df, obs) {
-  const itens = [];
-  for (const step of steps) {
-    for (const [src, flags, texto] of TRADUCOES_RE) {
-      if (new RegExp(src, flags).test(step) && !itens.includes(texto)) { itens.push(texto); break; }
-    }
-  }
-  if (!itens.length) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
-  if (obs) itens.push('• ' + obs);
-  const dm = {
-    'Resolvido':   '\\nO problema foi resolvido durante este atendimento.',
-    'Parcial':     '\\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
-    'Análise Q.A': '\\nO caso foi encaminhado para análise aprofundada da nossa equipe.',
-    'Ag. cliente': '\\nO atendimento está aguardando seu retorno para continuidade.',
-  };
-  let txt = itens.join('\\n');
-  if (df && dm[df]) txt += dm[df];
-  txt += '\\n\\nCaso tenha qualquer dúvida, estamos à disposição.';
-  return txt;
-}
-
-// Token
-const tokenInput = document.getElementById('token-input');
-const tokenOk = document.getElementById('token-ok');
-const savedToken = localStorage.getItem('nexos_token') || '';
-tokenInput.value = savedToken;
-if (savedToken) tokenOk.style.display = 'block';
-
-document.getElementById('token-save').addEventListener('click', () => {
-  const v = tokenInput.value.trim();
-  localStorage.setItem('nexos_token', v);
-  tokenOk.textContent = v ? '✓ Token salvo' : '✓ Token removido';
-  tokenOk.style.display = 'block';
-  setTimeout(() => tokenOk.style.display = 'none', 2000);
-});
-
-// Favoritos
-const favGrid = document.getElementById('fav-grid');
-FAV.forEach(l => {
-  const btn = document.createElement('button');
-  btn.className = 'step-btn';
-  btn.dataset.label = l;
-  btn.innerHTML = '<span class="chk"></span><span>'+l+'</span>';
-  btn.addEventListener('click', () => toggleStep(l));
-  favGrid.appendChild(btn);
-});
-
-// Categorias
-const catsEl = document.getElementById('cats');
-CATS.forEach(cat => {
-  const catBtn = document.createElement('button');
-  catBtn.className = 'cat-btn';
-  catBtn.innerHTML = '<span>'+cat.g+'</span><span class="arr">▸</span>';
-  catsEl.appendChild(catBtn);
-  const content = document.createElement('div');
-  content.className = 'cat-content';
-  cat.a.forEach(l => {
-    const btn = document.createElement('button');
-    btn.className = 'step-btn';
-    btn.dataset.label = l;
-    btn.innerHTML = '<span class="chk"></span><span>'+l+'</span>';
-    btn.addEventListener('click', () => toggleStep(l));
-    content.appendChild(btn);
-  });
-  catsEl.appendChild(content);
-  catBtn.addEventListener('click', () => {
-    const open = content.classList.contains('open');
-    catsEl.querySelectorAll('.cat-content').forEach(el => el.classList.remove('open'));
-    catsEl.querySelectorAll('.arr').forEach(el => el.textContent = '▸');
-    if (!open) { content.classList.add('open'); catBtn.querySelector('.arr').textContent = '▾'; }
-  });
-});
-
-// Personalizado
-document.getElementById('custom-add').addEventListener('click', addCustom);
-document.getElementById('custom-input').addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
-function addCustom() {
-  const v = document.getElementById('custom-input').value.trim();
-  if (!v) return;
-  toggleStep(v);
-  document.getElementById('custom-input').value = '';
-}
-
-// Desfecho
-const dfCls = ['df-ok','df-warn','df-info','df-gray'];
-DESFECHOS.forEach((d, i) => {
-  const btn = document.createElement('button');
-  btn.className = 'df-btn';
-  btn.textContent = d.l;
-  btn.dataset.df = d.l;
-  btn.dataset.cls = dfCls[i];
-  btn.addEventListener('click', () => {
-    df = df === d.l ? '' : d.l;
-    renderDf();
-    resetResult();
-  });
-  document.getElementById('df-grid').appendChild(btn);
-});
-function renderDf() {
-  document.querySelectorAll('.df-btn').forEach(btn => {
-    dfCls.forEach(c => btn.classList.remove(c));
-    if (btn.dataset.df === df) btn.classList.add(btn.dataset.cls);
-  });
-}
-
-// Steps
-function toggleStep(label) {
-  steps = steps.includes(label) ? steps.filter(s => s !== label) : [...steps, label];
-  renderSteps();
-  resetResult();
-}
-function renderSteps() {
-  document.querySelectorAll('.step-btn').forEach(btn => {
-    const sel = steps.includes(btn.dataset.label);
-    btn.classList.toggle('sel', sel);
-    btn.querySelector('.chk').textContent = sel ? '✓' : '';
-  });
-  const badge = document.getElementById('badge');
-  badge.style.display = steps.length ? 'inline-flex' : 'none';
-  badge.textContent = steps.length;
-  const sec = document.getElementById('sel-sec');
-  const list = document.getElementById('sel-list');
-  list.innerHTML = '';
-  sec.style.display = steps.length ? 'block' : 'none';
-  steps.forEach((s, i) => {
-    const item = document.createElement('div');
-    item.className = 'sel-item';
-    item.draggable = true;
-    item.dataset.idx = i;
-    item.innerHTML = '<span class="drag-h">⠿</span><span style="flex:1">'+s+'</span><button class="rm">×</button>';
-    item.querySelector('.rm').addEventListener('click', () => toggleStep(s));
-    item.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', i));
-    item.addEventListener('dragover', e => e.preventDefault());
-    item.addEventListener('drop', e => {
-      e.preventDefault();
-      const from = parseInt(e.dataTransfer.getData('text/plain'));
-      const to = i;
-      if (from === to) return;
-      const arr = [...steps];
-      const [el] = arr.splice(from, 1);
-      arr.splice(to, 0, el);
-      steps = arr;
-      renderSteps();
-    });
-    list.appendChild(item);
-  });
-}
-
-// Tabs
-document.getElementById('tab-tec').addEventListener('click', () => setTab('tec'));
-document.getElementById('tab-cli').addEventListener('click', () => setTab('cli'));
-function setTab(tab) {
-  activeTab = tab;
-  document.getElementById('tab-tec').classList.toggle('active', tab === 'tec');
-  document.getElementById('tab-cli').classList.toggle('active', tab === 'cli');
-  const p = document.getElementById('preview');
-  const txt = tab === 'tec' ? resumoTec : resumoCli;
-  if (txt) { p.textContent = txt; p.style.display = 'block'; }
-  else p.style.display = 'none';
-  document.getElementById('confirm-box').classList.remove('show');
-  clearStatus();
-}
-
-// Gerar
-document.getElementById('btn-gerar').addEventListener('click', () => {
-  if (!steps.length) { showStatus('Selecione ao menos um passo.', 'err'); return; }
-  const obs = document.getElementById('obs').value.trim();
-  resumoTec = buildTec(steps, df, obs);
-  resumoCli = buildCli(steps, df, obs);
-  const p = document.getElementById('preview');
-  p.textContent = activeTab === 'tec' ? resumoTec : resumoCli;
-  p.style.display = 'block';
-  document.getElementById('btn-gerar').style.display = 'none';
-  document.getElementById('action-btns').style.display = 'flex';
-  clearStatus();
-});
-
-// Copiar
-document.getElementById('btn-copy').addEventListener('click', () => {
-  const txt = activeTab === 'tec' ? resumoTec : resumoCli;
-  navigator.clipboard.writeText(txt).then(() => showStatus('✓ Copiado!', 'ok')).catch(() => {
-    const ta = document.createElement('textarea');
-    ta.value = txt;
-    Object.assign(ta.style, {position:'fixed',top:'0',left:'0',width:'1px',height:'1px',opacity:'0'});
-    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-    showStatus('✓ Copiado!', 'ok');
-  });
-});
-
-// Nota privada
-document.getElementById('btn-private').addEventListener('click', () => sendNote(true));
-
-// Nota pública
-document.getElementById('btn-public').addEventListener('click', () => {
-  document.getElementById('confirm-box').classList.add('show');
-  clearStatus();
-});
-document.getElementById('confirm-no').addEventListener('click', () => {
-  document.getElementById('confirm-box').classList.remove('show');
-});
-document.getElementById('confirm-yes').addEventListener('click', () => {
-  document.getElementById('confirm-box').classList.remove('show');
-  sendNote(false);
-});
-
-function sendNote(isPrivate) {
-  const token = (localStorage.getItem('nexos_token') || '').trim();
-  if (!token) { showStatus('Configure o token do Chatwoot primeiro.', 'err'); return; }
-  const content = isPrivate ? resumoTec : resumoCli;
-  showStatus('Enviando...', '');
-  // Envia mensagem para o script pai fazer o GM_xmlhttpRequest
-  window.parent.postMessage({ type: 'nexos_send', content, isPrivate, token }, '*');
-}
-
-// Reset
-document.getElementById('btn-reset').addEventListener('click', () => {
-  steps = []; df = ''; resumoTec = ''; resumoCli = '';
-  document.getElementById('obs').value = '';
-  document.getElementById('custom-input').value = '';
-  document.getElementById('preview').style.display = 'none';
-  document.getElementById('preview').textContent = '';
-  document.getElementById('btn-gerar').style.display = 'flex';
-  document.getElementById('action-btns').style.display = 'none';
-  document.getElementById('confirm-box').classList.remove('show');
-  renderSteps(); renderDf(); clearStatus();
-  catsEl.querySelectorAll('.cat-content').forEach(el => el.classList.remove('open'));
-  catsEl.querySelectorAll('.arr').forEach(el => el.textContent = '▸');
-});
-
-function showStatus(msg, type) {
-  const el = document.getElementById('status');
-  el.textContent = msg; el.className = 'status ' + type; el.style.display = 'block';
-}
-function clearStatus() {
-  const el = document.getElementById('status');
-  el.style.display = 'none'; el.textContent = '';
-}
-
-// Recebe resposta do envio
-window.addEventListener('message', e => {
-  if (e.data && e.data.type === 'nexos_result') {
-    showStatus(e.data.ok
-      ? (e.data.isPrivate ? '✓ Nota privada enviada!' : '✓ Nota pública enviada ao cliente!')
-      : 'Erro ao enviar. Verifique o token e a URL.', e.data.ok ? 'ok' : 'err');
-  }
-});
-
-// Fechar
-document.getElementById('close-btn').addEventListener('click', () => {
-  window.parent.postMessage({ type: 'nexos_close' }, '*');
-});
-</script>
-</body>
-</html>`;
-
-  // ─── Injeta conteúdo no iframe ───────────────────────────────────────────
-  iframe.addEventListener('load', () => {});
-  document.documentElement.appendChild(iframe);
-
-  iframe.srcdoc = iframeContent;
-
-  // ─── Comunicação com o iframe ─────────────────────────────────────────────
-  window.addEventListener('message', e => {
-    if (!e.data) return;
-
-    if (e.data.type === 'nexos_close') {
-      iframe.style.display = 'none';
-      toggleBtn.style.display = 'block';
-    }
-
-    if (e.data.type === 'nexos_send') {
-      const ids = getIdsFromUrl();
-      if (!ids) {
-        iframe.contentWindow.postMessage({ type: 'nexos_result', ok: false, isPrivate: e.data.isPrivate }, '*');
-        return;
-      }
-      GM_xmlhttpRequest({
-        method: 'POST',
-        url: `https://app.chatwoot.com/api/v1/accounts/${ids.accountId}/conversations/${ids.conversationId}/messages`,
-        headers: { 'Content-Type': 'application/json', 'api_access_token': e.data.token },
-        data: JSON.stringify({ content: e.data.content, message_type: 'outgoing', private: e.data.isPrivate }),
-        onload: r => iframe.contentWindow.postMessage({ type: 'nexos_result', ok: r.status >= 200 && r.status < 300, isPrivate: e.data.isPrivate }, '*'),
-        onerror: () => iframe.contentWindow.postMessage({ type: 'nexos_result', ok: false, isPrivate: e.data.isPrivate }, '*'),
-      });
-    }
-  });
-
-  // ─── Toggle ───────────────────────────────────────────────────────────────
-  toggleBtn.addEventListener('click', () => {
-    iframe.style.display = 'block';
+  function openModal() {
+    overlay.style.display = 'flex';
     toggleBtn.style.display = 'none';
-  });
+  }
+  function closeModal() {
+    overlay.style.display = 'none';
+    toggleBtn.style.display = 'block';
+  }
 
+  toggleBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', e => {
-    if (e.altKey && e.key === 'n') {
-      const open = iframe.style.display !== 'none';
-      iframe.style.display = open ? 'none' : 'block';
-      toggleBtn.style.display = open ? 'block' : 'none';
-    }
+    if (e.altKey && e.key === 'n') overlay.style.display === 'none' ? openModal() : closeModal();
+    if (e.key === 'Escape' && overlay.style.display !== 'none') closeModal();
   });
-
-  // ─── Detecta troca de conversa (SPA) ────────────────────────────────────
-  let lastUrl = location.href;
-  new MutationObserver(() => {
-    if (location.href !== lastUrl) {
-      lastUrl = location.href;
-    }
-  }).observe(document.body, { childList: true, subtree: true });
 
 })();
