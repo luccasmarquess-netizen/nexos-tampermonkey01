@@ -197,9 +197,11 @@
 
   // Body (scrollável)
   const body = document.createElement('div');
+  body.id = 'nexos-modal-body';
   Object.assign(body.style, {
-    flex: '1', overflowY: 'auto', padding: '14px',
+    overflowY: 'auto', padding: '14px',
     display: 'flex', flexDirection: 'column', gap: '10px',
+    minHeight: '0', flex: '1 1 0',
   });
   modal.appendChild(body);
 
