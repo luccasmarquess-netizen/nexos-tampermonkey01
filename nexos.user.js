@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Nexos
-// @namespace    https://github.com/luccasmarquess/nexos-tampermonkey
+// @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
 // @version      1.0.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
@@ -9,8 +9,8 @@
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @connect      app.chatwoot.com
-// @updateURL    https://raw.githubusercontent.com/luccasmarquess/nexos-tampermonkey/main/nexos.user.js
-// @downloadURL  https://raw.githubusercontent.com/luccasmarquess/nexos-tampermonkey/main/nexos.user.js
+// @updateURL    https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
+// @downloadURL  https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
 // ==/UserScript==
 
 (function () {
