@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.0.0
+// @version      1.1.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -19,13 +19,12 @@
 (function () {
   'use strict';
 
-  // ─── Extrai accountId e conversationId da URL ────────────────────────────
   function getIdsFromUrl() {
     const m = location.href.match(/accounts\/(\d+)(?:\/[^/]+)*\/conversations\/(\d+)/);
     return m ? { accountId: m[1], conversationId: m[2] } : null;
   }
 
-  // ─── Dados — passos ──────────────────────────────────────────────────────
+  // ─── Dados ───────────────────────────────────────────────────────────────
   const FAV = [
     'Acesso remoto estabelecido (RustDesk)',
     'Módulo Mobile instalado e validado',
@@ -122,15 +121,66 @@
   ];
 
   const DESFECHOS = [
-    { l: 'Resolvido',     bloco: '✅ DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
-    { l: 'Parcial',       bloco: '⚠️ DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
-    { l: 'Análise Q.A',   bloco: '🔍 DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
-    { l: 'Ag. cliente',   bloco: '⏳ DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
+    { l: 'Resolvido',     cls: 'df-ok',   bloco: '✅ DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
+    { l: 'Parcial',       cls: 'df-warn', bloco: '⚠️ DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
+    { l: 'Análise Q.A',   cls: 'df-info', bloco: '🔍 DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
+    { l: 'Ag. cliente',   cls: 'df-gray', bloco: '⏳ DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
   ];
 
   const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento.';
 
-  // ─── Geração de resumo por template (sem IA) ─────────────────────────────
+  const TRADUCOES = [
+    [/acesso remoto estabelecido/i,              '• Realizamos o atendimento de forma remota'],
+    [/atualização do consumer executada/i,        '• Atualizamos o sistema para a versão mais recente'],
+    [/consumer reiniciado/i,                      '• Reiniciamos o sistema'],
+    [/reinstalação do consumer realizada/i,       '• Reinstalamos o sistema completo'],
+    [/backup realizado/i,                         '• Realizamos uma cópia de segurança dos dados'],
+    [/bloqueio de antivírus.*verificado/i,        '• Verificamos as permissões de segurança do computador'],
+    [/ativação\/licença verificada/i,             '• Verificamos a licença de uso do sistema'],
+    [/ip fixo.*configurado/i,                     '• Configuramos o endereço de rede do servidor'],
+    [/vpn.*configurada/i,                         '• Configuramos a conexão entre os computadores da loja'],
+    [/reconexão entre pc servidor/i,              '• Restabelecemos a comunicação entre os computadores da loja'],
+    [/impressora instalada e configurada/i,       '• Instalamos e configuramos a impressora no sistema'],
+    [/driver da impressora reinstalado/i,         '• Reinstalamos o driver da impressora'],
+    [/teste de impressão realizado.*positivo/i,   '• Testamos a impressão com resultado positivo'],
+    [/gaveta de dinheiro verificada/i,            '• Verificamos o funcionamento da gaveta de dinheiro'],
+    [/balança instalada e configurada/i,          '• Instalamos e configuramos a balança no sistema'],
+    [/emissor fiscal.*configurado/i,              '• Corrigimos o sistema de emissão de cupons fiscais'],
+    [/módulo fiscal verificado/i,                 '• Verificamos o módulo de emissão de notas fiscais'],
+    [/certificado digital verificado\/atualizado/i,'• Atualizamos o certificado digital do estabelecimento'],
+    [/rejeição de cupom fiscal.*corrigida/i,      '• Identificamos e corrigimos a rejeição de cupons fiscais'],
+    [/validação e testes de emissão fiscal.*positivo/i, '• Realizamos testes de emissão fiscal com resultado positivo'],
+    [/emissão de cupom fiscal em lote/i,          '• Emitimos os cupons fiscais pendentes em lote'],
+    [/arquivos xml exportados/i,                  '• Exportamos os arquivos fiscais para o contador'],
+    [/cancelamento de nfc-e\/nf-e/i,              '• Realizamos o cancelamento das notas fiscais solicitadas'],
+    [/integração ifood verificada/i,              '• Verificamos o recebimento de pedidos pelo iFood'],
+    [/integração 99food verificada/i,             '• Verificamos o recebimento de pedidos pelo 99Food'],
+    [/integração keeta verificada/i,              '• Verificamos o recebimento de pedidos pelo Keeta'],
+    [/bot whatsapp.*validado/i,                   '• Configuramos e testamos o Bot do WhatsApp'],
+    [/bot whatsapp verificado/i,                  '• Verificamos o funcionamento do Bot do WhatsApp'],
+    [/app do entregador verificado/i,             '• Verificamos o funcionamento do App do Entregador'],
+    [/monitor de preparo verificado/i,            '• Verificamos o funcionamento do Monitor de Preparo'],
+    [/recebimento via pix configurado/i,          '• Configuramos o recebimento de pagamentos via PIX'],
+    [/totem verificado\/configurado/i,            '• Verificamos e configuramos o totem de autoatendimento'],
+    [/módulo mobile instalado e validado/i,       '• Instalamos e validamos o módulo de atendimento pelo celular'],
+    [/máquina tef verificada\/integrada/i,        '• Verificamos e integramos a maquininha de cartão'],
+    [/integração via api do parceiro/i,           '• Configuramos a integração com o sistema do parceiro'],
+    [/menudino configurado e validado/i,          '• Configuramos e validamos o cardápio online'],
+    [/chave google maps configurada/i,            '• Configuramos a integração com o mapa para entregas'],
+    [/firebird.*reinstalado.*zero/i,              '• Reinstalamos o banco de dados do sistema do zero'],
+    [/firebird padrão reinstalado/i,              '• Restauramos o banco de dados do sistema'],
+    [/firebird exclusivo removido/i,              '• Removemos a versão exclusiva do banco de dados'],
+    [/serviço do firebird reiniciado/i,           '• Reiniciamos o serviço de banco de dados'],
+    [/comunicação do firebird.*validada/i,        '• Validamos a comunicação do banco de dados com o sistema'],
+    [/recuperação do banco de dados/i,            '• Recuperamos o banco de dados do sistema'],
+    [/responsável orientado quanto ao procedimento/i, '• Orientamos o responsável sobre os procedimentos realizados'],
+    [/responsável orientado sobre.*impactos/i,    '• Orientamos o responsável sobre possíveis impactos e prevenção'],
+    [/manual do consumer indicado/i,              '• Indicamos o manual do sistema para consulta'],
+    [/consumer connect.*demonstrado/i,            '• Apresentamos o portal de relatórios online'],
+    [/crm verificado.*orientações/i,              '• Verificamos o CRM e repassamos orientações'],
+    [/cliente orientado.*visita de técnico/i,     '• Orientamos o cliente a solicitar suporte técnico presencial'],
+  ];
+
   function buildResumoTecnico(steps, df, obs) {
     let txt = steps.map((s, i) => `${i + 1}. ${s}`).join('\n');
     txt += `\n${FRASE_FINAL}`;
@@ -141,931 +191,723 @@
   }
 
   function buildResumoCliente(steps, df, obs) {
-    // Mapa de tradução: termo técnico → linguagem simples
-    const traducoes = [
-      [/acesso remoto estabelecido.*$/i,           '• Realizamos o atendimento de forma remota'],
-      [/atualização do consumer executada/i,        '• Atualizamos o sistema para a versão mais recente'],
-      [/consumer reiniciado/i,                      '• Reiniciamos o sistema'],
-      [/reinstalação do consumer realizada/i,       '• Reinstalamos o sistema completo'],
-      [/backup realizado/i,                         '• Realizamos uma cópia de segurança dos dados antes de iniciar'],
-      [/bloqueio de antivírus.*verificado/i,        '• Verificamos as permissões de segurança do computador'],
-      [/ativação\/licença verificada/i,             '• Verificamos a licença de uso do sistema'],
-      [/ip fixo.*configurado/i,                     '• Configuramos o endereço de rede do servidor'],
-      [/vpn.*configurada/i,                         '• Configuramos a conexão entre os computadores da loja'],
-      [/reconexão entre pc servidor e pc cliente/i, '• Restabelecemos a comunicação entre os computadores da loja'],
-      [/impressora instalada e configurada/i,       '• Instalamos e configuramos a impressora no sistema'],
-      [/driver da impressora reinstalado/i,         '• Reinstalamos o driver da impressora'],
-      [/teste de impressão realizado.*positivo/i,   '• Testamos a impressão com resultado positivo'],
-      [/gaveta de dinheiro verificada/i,            '• Verificamos o funcionamento da gaveta de dinheiro'],
-      [/balança instalada e configurada/i,          '• Instalamos e configuramos a balança no sistema'],
-      [/emissor fiscal.*configurado/i,              '• Corrigimos o sistema de emissão de cupons fiscais'],
-      [/módulo fiscal verificado/i,                 '• Verificamos o módulo de emissão de notas fiscais'],
-      [/certificado digital verificado\/atualizado/i,'• Atualizamos o certificado digital do estabelecimento'],
-      [/rejeição de cupom fiscal.*corrigida/i,      '• Identificamos e corrigimos a rejeição de cupons fiscais'],
-      [/validação e testes de emissão fiscal.*positivo/i, '• Realizamos testes de emissão fiscal com resultado positivo'],
-      [/emissão de cupom fiscal em lote/i,          '• Emitimos os cupons fiscais pendentes em lote'],
-      [/arquivos xml exportados ao contador/i,      '• Exportamos os arquivos fiscais para o contador'],
-      [/cancelamento de nfc-e\/nf-e/i,              '• Realizamos o cancelamento das notas fiscais solicitadas'],
-      [/integração ifood verificada/i,              '• Verificamos e confirmamos o recebimento de pedidos pelo iFood'],
-      [/integração 99food verificada/i,             '• Verificamos e confirmamos o recebimento de pedidos pelo 99Food'],
-      [/integração keeta verificada/i,              '• Verificamos e confirmamos o recebimento de pedidos pelo Keeta'],
-      [/bot whatsapp.*validado/i,                   '• Configuramos e testamos o Bot do WhatsApp'],
-      [/bot whatsapp verificado/i,                  '• Verificamos o funcionamento do Bot do WhatsApp'],
-      [/app do entregador verificado/i,             '• Verificamos o funcionamento do App do Entregador'],
-      [/monitor de preparo verificado/i,            '• Verificamos o funcionamento do Monitor de Preparo'],
-      [/recebimento via pix configurado/i,          '• Configuramos o recebimento de pagamentos via PIX'],
-      [/totem verificado\/configurado/i,            '• Verificamos e configuramos o totem de autoatendimento'],
-      [/módulo mobile instalado e validado/i,       '• Instalamos e validamos o módulo de atendimento pelo celular'],
-      [/máquina tef verificada\/integrada/i,        '• Verificamos e integramos a maquininha de cartão'],
-      [/integração via api do parceiro/i,           '• Configuramos a integração com o sistema do parceiro'],
-      [/smartpos verificado\/configurado/i,         '• Verificamos e configuramos o terminal de pagamento'],
-      [/serviços logísticos verificados/i,          '• Verificamos os serviços de entrega configurados'],
-      [/menudino configurado e validado/i,          '• Configuramos e validamos o cardápio online do estabelecimento'],
-      [/chave google maps configurada/i,            '• Configuramos a integração com o mapa para entregas'],
-      [/produtos em destaque.*configurados/i,       '• Configuramos os produtos em destaque no cardápio online'],
-      [/firebird.*reinstalado.*zero/i,              '• Reinstalamos o banco de dados do sistema do zero'],
-      [/firebird padrão reinstalado/i,              '• Restauramos o banco de dados do sistema'],
-      [/firebird exclusivo removido/i,              '• Removemos a versão exclusiva do banco de dados'],
-      [/serviço do firebird reiniciado/i,           '• Reiniciamos o serviço de banco de dados'],
-      [/comunicação do firebird.*validada/i,        '• Validamos a comunicação do banco de dados com o sistema'],
-      [/recuperação do banco de dados/i,            '• Recuperamos o banco de dados do sistema'],
-      [/responsável orientado quanto ao procedimento/i, '• Orientamos o responsável sobre os procedimentos realizados'],
-      [/responsável orientado sobre.*impactos/i,    '• Orientamos o responsável sobre possíveis impactos e prevenção'],
-      [/manual do consumer indicado/i,              '• Indicamos o manual do sistema para consulta'],
-      [/consumer connect.*demonstrado/i,            '• Apresentamos o portal de relatórios online'],
-      [/crm verificado.*orientações/i,              '• Verificamos o CRM e repassamos orientações'],
-      [/cliente orientado.*visita de técnico/i,     '• Orientamos o cliente a solicitar suporte técnico presencial'],
-      [/local de produção vinculado/i,              '• Vinculamos os locais de produção aos produtos'],
-      [/conta google play developer/i,              '• Configuramos a conta de desenvolvedor necessária'],
-      [/ponto central de localização.*ajustado/i,   '• Ajustamos a localização do estabelecimento no mapa'],
-      [/versão rede verificada/i,                   '• Verificamos a comunicação em rede entre os computadores'],
-      [/teste de conectividade.*internet/i,         '• Testamos a conexão com a internet'],
-      [/alteração de métricas de rede/i,            '• Ajustamos as configurações de rede'],
-    ];
-
     const itens = [];
     for (const step of steps) {
-      let traduzido = null;
-      for (const [regex, texto] of traducoes) {
-        if (regex.test(step)) { traduzido = texto; break; }
+      for (const [re, texto] of TRADUCOES) {
+        if (re.test(step) && !itens.includes(texto)) { itens.push(texto); break; }
       }
-      if (traduzido && !itens.includes(traduzido)) itens.push(traduzido);
     }
-
-    // Se não achou tradução para algum passo, adiciona genérico
     if (itens.length === 0) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
-
-    // Adiciona obs se tiver
     if (obs) itens.push(`• ${obs}`);
-
-    // Desfecho em linguagem simples
     const desfechoMap = {
       'Resolvido':   '\nO problema foi resolvido durante este atendimento.',
       'Parcial':     '\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
       'Análise Q.A': '\nO caso foi encaminhado para análise aprofundada da nossa equipe.',
       'Ag. cliente': '\nO atendimento está aguardando seu retorno para continuidade.',
     };
-
     let txt = itens.join('\n');
     if (df && desfechoMap[df]) txt += `\n${desfechoMap[df]}`;
     txt += '\n\nCaso tenha qualquer dúvida, estamos à disposição.';
     return txt;
   }
 
-  // ─── API Chatwoot via GM_xmlhttpRequest ──────────────────────────────────
-  function chatwootPost(accountId, conversationId, content, isPrivate, token) {
-    return new Promise((resolve, reject) => {
+  // ─── Botão flutuante (fora do iframe) ───────────────────────────────────
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'nexos-toggle-outer';
+  toggleBtn.textContent = 'NEXOS';
+  Object.assign(toggleBtn.style, {
+    position: 'fixed',
+    right: '0',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    zIndex: '2147483647',
+    background: '#1F93FF',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px 0 0 8px',
+    padding: '10px 6px',
+    cursor: 'pointer',
+    fontSize: '11px',
+    fontWeight: '700',
+    letterSpacing: '.05em',
+    writingMode: 'vertical-rl',
+    boxShadow: '-2px 0 8px rgba(0,0,0,.18)',
+  });
+  document.documentElement.appendChild(toggleBtn);
+
+  // ─── iframe isolado ──────────────────────────────────────────────────────
+  const iframe = document.createElement('iframe');
+  iframe.id = 'nexos-iframe';
+  Object.assign(iframe.style, {
+    position: 'fixed',
+    right: '0',
+    top: '0',
+    width: '360px',
+    height: '100vh',
+    border: 'none',
+    zIndex: '2147483646',
+    display: 'none',
+    boxShadow: '-4px 0 24px rgba(0,0,0,.15)',
+  });
+  document.documentElement.appendChild(iframe);
+
+  // ─── Conteúdo do iframe ──────────────────────────────────────────────────
+  const iframeContent = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  color: #111;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+#hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #1F93FF;
+  color: #fff;
+  flex-shrink: 0;
+}
+#hdr h2 { font-size: 14px; font-weight: 700; }
+#close-btn {
+  background: none; border: none; color: #fff;
+  cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px;
+}
+#body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sec {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sec-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 8px 10px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sec-body { padding: 8px 10px; }
+.sub-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+.steps-grid { display: flex; flex-direction: column; gap: 4px; }
+.step-btn {
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  transition: all .1s;
+}
+.step-btn:hover { border-color: #1F93FF; color: #1F93FF; }
+.step-btn.sel { background: #eff6ff; border-color: #1F93FF; color: #1F93FF; font-weight: 500; }
+.chk {
+  width: 14px; height: 14px; border-radius: 3px;
+  border: 1.5px solid #d1d5db;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+}
+.step-btn.sel .chk { background: #1F93FF; border-color: #1F93FF; color: #fff; }
+.cat-btn {
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cat-btn:last-of-type { border-bottom: none; }
+.cat-btn:hover { background: #e5e7eb; }
+.cat-content {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+.cat-content.open { display: flex; }
+.df-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.df-btn {
+  padding: 7px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  text-align: center;
+}
+.df-btn:hover { border-color: #6b7280; }
+.df-btn.df-ok   { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.df-btn.df-warn { background: #fef9c3; border-color: #ca8a04; color: #a16207; }
+.df-btn.df-info { background: #eff6ff; border-color: #1F93FF; color: #1677d2; }
+.df-btn.df-gray { background: #f3f4f6; border-color: #6b7280; color: #374151; }
+.sel-list { display: flex; flex-direction: column; gap: 3px; }
+.sel-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 8px;
+  background: #eff6ff;
+  border-radius: 5px;
+  font-size: 12px;
+  color: #1677d2;
+}
+.sel-item .rm {
+  margin-left: auto;
+  background: none; border: none;
+  color: #93c5fd; cursor: pointer;
+  font-size: 16px; line-height: 1;
+  flex-shrink: 0;
+}
+.sel-item .rm:hover { color: #1F93FF; }
+.drag-h { cursor: grab; color: #93c5fd; font-size: 12px; flex-shrink: 0; }
+input, textarea {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #111;
+  font-family: inherit;
+  outline: none;
+}
+input:focus, textarea:focus { border-color: #1F93FF; }
+textarea { resize: vertical; }
+.custom-row { display: flex; gap: 6px; margin-top: 6px; }
+.custom-row input { flex: 1; }
+.add-btn {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #1F93FF;
+  background: #eff6ff;
+  color: #1F93FF;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.add-btn:hover { background: #1F93FF; color: #fff; }
+.badge {
+  background: #1F93FF; color: #fff;
+  border-radius: 99px;
+  font-size: 10px; font-weight: 700;
+  min-width: 18px; height: 18px;
+  padding: 0 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+#ftr {
+  padding: 10px 12px;
+  border-top: 1px solid #e5e7eb;
+  display: flex; flex-direction: column; gap: 6px;
+  flex-shrink: 0;
+  background: #f9fafb;
+}
+.tab-bar { display: flex; gap: 4px; }
+.tab {
+  flex: 1; padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 12px; font-weight: 500;
+  cursor: pointer; text-align: center; color: #6b7280;
+}
+.tab.active { background: #eff6ff; border-color: #1F93FF; color: #1F93FF; font-weight: 600; }
+.preview {
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  border-radius: 7px; padding: 10px;
+  font-size: 12px; line-height: 1.7;
+  white-space: pre-wrap; color: #111;
+  max-height: 160px; overflow-y: auto;
+  display: none;
+}
+.btn {
+  padding: 9px 12px; border-radius: 7px; border: none;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; font-family: inherit;
+}
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary { background: #1F93FF; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #1677d2; }
+.btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+.btn-secondary:hover:not(:disabled) { border-color: #9ca3af; }
+.btn-danger { background: #fff; color: #dc2626; border: 1px solid #fca5a5; }
+.btn-danger:hover:not(:disabled) { background: #fee2e2; }
+.confirm-box {
+  padding: 10px; background: #fefce8;
+  border: 1px solid #fde047; border-radius: 7px;
+  font-size: 12px; color: #854d0e;
+  display: none; flex-direction: column; gap: 8px;
+}
+.confirm-box.show { display: flex; }
+.confirm-actions { display: flex; gap: 6px; }
+.confirm-actions .btn { flex: 1; }
+.status { font-size: 12px; text-align: center; padding: 4px; display: none; }
+.status.ok { color: #16a34a; }
+.status.err { color: #dc2626; }
+.token-row { display: flex; gap: 6px; }
+.token-row input { flex: 1; }
+.token-save {
+  padding: 7px 10px; border-radius: 6px;
+  border: 1px solid #d1d5db; background: #fff;
+  font-size: 12px; cursor: pointer; white-space: nowrap;
+  font-family: inherit;
+}
+.token-save:hover { border-color: #1F93FF; color: #1F93FF; }
+.hint { font-size: 11px; color: #9ca3af; margin-top: 5px; }
+.token-ok { font-size: 11px; color: #16a34a; margin-top: 4px; display: none; }
+</style>
+</head>
+<body>
+<div id="hdr">
+  <h2>🔗 Nexos</h2>
+  <button id="close-btn">×</button>
+</div>
+<div id="body">
+
+  <div class="sec">
+    <div class="sec-title">🔑 Token do Chatwoot</div>
+    <div class="sec-body">
+      <div class="token-row">
+        <input id="token-input" type="password" placeholder="Cole seu token de acesso..."/>
+        <button class="token-save" id="token-save">Salvar</button>
+      </div>
+      <div class="hint">Chatwoot → Configurações → Perfil → Token de acesso</div>
+      <div class="token-ok" id="token-ok">✓ Token salvo</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">
+      <span>📋 Passos realizados</span>
+      <span class="badge" id="badge" style="display:none">0</span>
+    </div>
+    <div class="sec-body">
+      <div class="sub-label">⭐ Mais usados</div>
+      <div class="steps-grid" id="fav-grid"></div>
+      <div class="sub-label" style="margin-top:10px;">📂 Outras ações</div>
+      <div id="cats"></div>
+      <div class="custom-row">
+        <input id="custom-input" placeholder="Ação personalizada..."/>
+        <button class="add-btn" id="custom-add">+ Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec" id="sel-sec" style="display:none">
+    <div class="sec-title">✅ Passos selecionados</div>
+    <div class="sec-body">
+      <div class="sel-list" id="sel-list"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">🏁 Desfecho</div>
+    <div class="sec-body">
+      <div class="df-grid" id="df-grid"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">📝 Observação adicional (opcional)</div>
+    <div class="sec-body">
+      <textarea id="obs" rows="2" placeholder="Ex: cliente orientado sobre certificado digital"></textarea>
+    </div>
+  </div>
+
+</div>
+<div id="ftr">
+  <div class="tab-bar">
+    <button class="tab active" id="tab-tec">Resumo técnico</button>
+    <button class="tab" id="tab-cli">Para o cliente</button>
+  </div>
+  <div class="preview" id="preview"></div>
+  <div class="confirm-box" id="confirm-box">
+    <div><strong>⚠️ Nota pública</strong><br>Esta nota ficará visível para o cliente no Chatwoot. Confirma?</div>
+    <div class="confirm-actions">
+      <button class="btn btn-primary" id="confirm-yes">Confirmar</button>
+      <button class="btn btn-secondary" id="confirm-no">Cancelar</button>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
+  <button class="btn btn-primary" id="btn-gerar">Gerar resumo</button>
+  <div id="action-btns" style="display:none;flex-direction:column;gap:6px;">
+    <button class="btn btn-secondary" id="btn-copy">📋 Copiar texto</button>
+    <button class="btn btn-secondary" id="btn-private">🔒 Enviar nota privada</button>
+    <button class="btn btn-danger" id="btn-public">👁 Enviar ao cliente (nota pública)</button>
+    <button class="btn btn-secondary" id="btn-reset" style="font-size:12px;color:#9ca3af;border-color:#e5e7eb;">↺ Novo chamado</button>
+  </div>
+</div>
+<script>
+// Estado
+let steps = [];
+let df = '';
+let activeTab = 'tec';
+let resumoTec = '';
+let resumoCli = '';
+
+const FAV = ${JSON.stringify(FAV)};
+const CATS = ${JSON.stringify(CATS)};
+const DESFECHOS = ${JSON.stringify(DESFECHOS)};
+const TRADUCOES_RE = ${JSON.stringify(TRADUCOES.map(([re, txt]) => [re.source, re.flags, txt]))};
+const FRASE_FINAL = ${JSON.stringify(FRASE_FINAL)};
+
+function buildTec(steps, df, obs) {
+  let txt = steps.map((s,i) => (i+1)+'. '+s).join('\\n');
+  txt += '\\n' + FRASE_FINAL;
+  if (obs) txt += '\\n\\nObservação: ' + obs;
+  const d = DESFECHOS.find(x => x.l === df);
+  if (d) txt += '\\n\\n' + d.bloco;
+  return txt;
+}
+
+function buildCli(steps, df, obs) {
+  const itens = [];
+  for (const step of steps) {
+    for (const [src, flags, texto] of TRADUCOES_RE) {
+      if (new RegExp(src, flags).test(step) && !itens.includes(texto)) { itens.push(texto); break; }
+    }
+  }
+  if (!itens.length) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
+  if (obs) itens.push('• ' + obs);
+  const dm = {
+    'Resolvido':   '\\nO problema foi resolvido durante este atendimento.',
+    'Parcial':     '\\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
+    'Análise Q.A': '\\nO caso foi encaminhado para análise aprofundada da nossa equipe.',
+    'Ag. cliente': '\\nO atendimento está aguardando seu retorno para continuidade.',
+  };
+  let txt = itens.join('\\n');
+  if (df && dm[df]) txt += dm[df];
+  txt += '\\n\\nCaso tenha qualquer dúvida, estamos à disposição.';
+  return txt;
+}
+
+// Token
+const tokenInput = document.getElementById('token-input');
+const tokenOk = document.getElementById('token-ok');
+const savedToken = localStorage.getItem('nexos_token') || '';
+tokenInput.value = savedToken;
+if (savedToken) tokenOk.style.display = 'block';
+
+document.getElementById('token-save').addEventListener('click', () => {
+  const v = tokenInput.value.trim();
+  localStorage.setItem('nexos_token', v);
+  tokenOk.textContent = v ? '✓ Token salvo' : '✓ Token removido';
+  tokenOk.style.display = 'block';
+  setTimeout(() => tokenOk.style.display = 'none', 2000);
+});
+
+// Favoritos
+const favGrid = document.getElementById('fav-grid');
+FAV.forEach(l => {
+  const btn = document.createElement('button');
+  btn.className = 'step-btn';
+  btn.dataset.label = l;
+  btn.innerHTML = '<span class="chk"></span><span>'+l+'</span>';
+  btn.addEventListener('click', () => toggleStep(l));
+  favGrid.appendChild(btn);
+});
+
+// Categorias
+const catsEl = document.getElementById('cats');
+CATS.forEach(cat => {
+  const catBtn = document.createElement('button');
+  catBtn.className = 'cat-btn';
+  catBtn.innerHTML = '<span>'+cat.g+'</span><span class="arr">▸</span>';
+  catsEl.appendChild(catBtn);
+  const content = document.createElement('div');
+  content.className = 'cat-content';
+  cat.a.forEach(l => {
+    const btn = document.createElement('button');
+    btn.className = 'step-btn';
+    btn.dataset.label = l;
+    btn.innerHTML = '<span class="chk"></span><span>'+l+'</span>';
+    btn.addEventListener('click', () => toggleStep(l));
+    content.appendChild(btn);
+  });
+  catsEl.appendChild(content);
+  catBtn.addEventListener('click', () => {
+    const open = content.classList.contains('open');
+    catsEl.querySelectorAll('.cat-content').forEach(el => el.classList.remove('open'));
+    catsEl.querySelectorAll('.arr').forEach(el => el.textContent = '▸');
+    if (!open) { content.classList.add('open'); catBtn.querySelector('.arr').textContent = '▾'; }
+  });
+});
+
+// Personalizado
+document.getElementById('custom-add').addEventListener('click', addCustom);
+document.getElementById('custom-input').addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
+function addCustom() {
+  const v = document.getElementById('custom-input').value.trim();
+  if (!v) return;
+  toggleStep(v);
+  document.getElementById('custom-input').value = '';
+}
+
+// Desfecho
+const dfCls = ['df-ok','df-warn','df-info','df-gray'];
+DESFECHOS.forEach((d, i) => {
+  const btn = document.createElement('button');
+  btn.className = 'df-btn';
+  btn.textContent = d.l;
+  btn.dataset.df = d.l;
+  btn.dataset.cls = dfCls[i];
+  btn.addEventListener('click', () => {
+    df = df === d.l ? '' : d.l;
+    renderDf();
+    resetResult();
+  });
+  document.getElementById('df-grid').appendChild(btn);
+});
+function renderDf() {
+  document.querySelectorAll('.df-btn').forEach(btn => {
+    dfCls.forEach(c => btn.classList.remove(c));
+    if (btn.dataset.df === df) btn.classList.add(btn.dataset.cls);
+  });
+}
+
+// Steps
+function toggleStep(label) {
+  steps = steps.includes(label) ? steps.filter(s => s !== label) : [...steps, label];
+  renderSteps();
+  resetResult();
+}
+function renderSteps() {
+  document.querySelectorAll('.step-btn').forEach(btn => {
+    const sel = steps.includes(btn.dataset.label);
+    btn.classList.toggle('sel', sel);
+    btn.querySelector('.chk').textContent = sel ? '✓' : '';
+  });
+  const badge = document.getElementById('badge');
+  badge.style.display = steps.length ? 'inline-flex' : 'none';
+  badge.textContent = steps.length;
+  const sec = document.getElementById('sel-sec');
+  const list = document.getElementById('sel-list');
+  list.innerHTML = '';
+  sec.style.display = steps.length ? 'block' : 'none';
+  steps.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'sel-item';
+    item.draggable = true;
+    item.dataset.idx = i;
+    item.innerHTML = '<span class="drag-h">⠿</span><span style="flex:1">'+s+'</span><button class="rm">×</button>';
+    item.querySelector('.rm').addEventListener('click', () => toggleStep(s));
+    item.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', i));
+    item.addEventListener('dragover', e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = i;
+      if (from === to) return;
+      const arr = [...steps];
+      const [el] = arr.splice(from, 1);
+      arr.splice(to, 0, el);
+      steps = arr;
+      renderSteps();
+    });
+    list.appendChild(item);
+  });
+}
+
+// Tabs
+document.getElementById('tab-tec').addEventListener('click', () => setTab('tec'));
+document.getElementById('tab-cli').addEventListener('click', () => setTab('cli'));
+function setTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-tec').classList.toggle('active', tab === 'tec');
+  document.getElementById('tab-cli').classList.toggle('active', tab === 'cli');
+  const p = document.getElementById('preview');
+  const txt = tab === 'tec' ? resumoTec : resumoCli;
+  if (txt) { p.textContent = txt; p.style.display = 'block'; }
+  else p.style.display = 'none';
+  document.getElementById('confirm-box').classList.remove('show');
+  clearStatus();
+}
+
+// Gerar
+document.getElementById('btn-gerar').addEventListener('click', () => {
+  if (!steps.length) { showStatus('Selecione ao menos um passo.', 'err'); return; }
+  const obs = document.getElementById('obs').value.trim();
+  resumoTec = buildTec(steps, df, obs);
+  resumoCli = buildCli(steps, df, obs);
+  const p = document.getElementById('preview');
+  p.textContent = activeTab === 'tec' ? resumoTec : resumoCli;
+  p.style.display = 'block';
+  document.getElementById('btn-gerar').style.display = 'none';
+  document.getElementById('action-btns').style.display = 'flex';
+  clearStatus();
+});
+
+// Copiar
+document.getElementById('btn-copy').addEventListener('click', () => {
+  const txt = activeTab === 'tec' ? resumoTec : resumoCli;
+  navigator.clipboard.writeText(txt).then(() => showStatus('✓ Copiado!', 'ok')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    Object.assign(ta.style, {position:'fixed',top:'0',left:'0',width:'1px',height:'1px',opacity:'0'});
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    showStatus('✓ Copiado!', 'ok');
+  });
+});
+
+// Nota privada
+document.getElementById('btn-private').addEventListener('click', () => sendNote(true));
+
+// Nota pública
+document.getElementById('btn-public').addEventListener('click', () => {
+  document.getElementById('confirm-box').classList.add('show');
+  clearStatus();
+});
+document.getElementById('confirm-no').addEventListener('click', () => {
+  document.getElementById('confirm-box').classList.remove('show');
+});
+document.getElementById('confirm-yes').addEventListener('click', () => {
+  document.getElementById('confirm-box').classList.remove('show');
+  sendNote(false);
+});
+
+function sendNote(isPrivate) {
+  const token = (localStorage.getItem('nexos_token') || '').trim();
+  if (!token) { showStatus('Configure o token do Chatwoot primeiro.', 'err'); return; }
+  const content = isPrivate ? resumoTec : resumoCli;
+  showStatus('Enviando...', '');
+  // Envia mensagem para o script pai fazer o GM_xmlhttpRequest
+  window.parent.postMessage({ type: 'nexos_send', content, isPrivate, token }, '*');
+}
+
+// Reset
+document.getElementById('btn-reset').addEventListener('click', () => {
+  steps = []; df = ''; resumoTec = ''; resumoCli = '';
+  document.getElementById('obs').value = '';
+  document.getElementById('custom-input').value = '';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('preview').textContent = '';
+  document.getElementById('btn-gerar').style.display = 'flex';
+  document.getElementById('action-btns').style.display = 'none';
+  document.getElementById('confirm-box').classList.remove('show');
+  renderSteps(); renderDf(); clearStatus();
+  catsEl.querySelectorAll('.cat-content').forEach(el => el.classList.remove('open'));
+  catsEl.querySelectorAll('.arr').forEach(el => el.textContent = '▸');
+});
+
+function showStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg; el.className = 'status ' + type; el.style.display = 'block';
+}
+function clearStatus() {
+  const el = document.getElementById('status');
+  el.style.display = 'none'; el.textContent = '';
+}
+
+// Recebe resposta do envio
+window.addEventListener('message', e => {
+  if (e.data && e.data.type === 'nexos_result') {
+    showStatus(e.data.ok
+      ? (e.data.isPrivate ? '✓ Nota privada enviada!' : '✓ Nota pública enviada ao cliente!')
+      : 'Erro ao enviar. Verifique o token e a URL.', e.data.ok ? 'ok' : 'err');
+  }
+});
+
+// Fechar
+document.getElementById('close-btn').addEventListener('click', () => {
+  window.parent.postMessage({ type: 'nexos_close' }, '*');
+});
+</script>
+</body>
+</html>`;
+
+  // ─── Injeta conteúdo no iframe ───────────────────────────────────────────
+  iframe.addEventListener('load', () => {});
+  document.documentElement.appendChild(iframe);
+
+  const blob = new Blob([iframeContent], { type: 'text/html' });
+  iframe.src = URL.createObjectURL(blob);
+
+  // ─── Comunicação com o iframe ─────────────────────────────────────────────
+  window.addEventListener('message', e => {
+    if (!e.data) return;
+
+    if (e.data.type === 'nexos_close') {
+      iframe.style.display = 'none';
+      toggleBtn.style.display = 'block';
+    }
+
+    if (e.data.type === 'nexos_send') {
+      const ids = getIdsFromUrl();
+      if (!ids) {
+        iframe.contentWindow.postMessage({ type: 'nexos_result', ok: false, isPrivate: e.data.isPrivate }, '*');
+        return;
+      }
       GM_xmlhttpRequest({
         method: 'POST',
-        url: `https://app.chatwoot.com/api/v1/accounts/${accountId}/conversations/${conversationId}/messages`,
-        headers: {
-          'Content-Type': 'application/json',
-          'api_access_token': token,
-        },
-        data: JSON.stringify({ content, message_type: 'outgoing', private: isPrivate }),
-        onload: r => r.status >= 200 && r.status < 300 ? resolve() : reject(r.status),
-        onerror: reject,
+        url: `https://app.chatwoot.com/api/v1/accounts/${ids.accountId}/conversations/${ids.conversationId}/messages`,
+        headers: { 'Content-Type': 'application/json', 'api_access_token': e.data.token },
+        data: JSON.stringify({ content: e.data.content, message_type: 'outgoing', private: e.data.isPrivate }),
+        onload: r => iframe.contentWindow.postMessage({ type: 'nexos_result', ok: r.status >= 200 && r.status < 300, isPrivate: e.data.isPrivate }, '*'),
+        onerror: () => iframe.contentWindow.postMessage({ type: 'nexos_result', ok: false, isPrivate: e.data.isPrivate }, '*'),
       });
-    });
-  }
-
-  // ─── Estado da UI ────────────────────────────────────────────────────────
-  let selectedSteps = [];
-  let selectedDf = '';
-  let obsText = '';
-  let openCat = null;
-  let currentIds = null;
-
-  // ─── CSS ─────────────────────────────────────────────────────────────────
-  const style = document.createElement('style');
-  style.textContent = `
-    #nexos-toggle {
-      position: fixed;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 99999;
-      background: #1F93FF;
-      color: #fff;
-      border: none;
-      border-radius: 8px 0 0 8px;
-      padding: 10px 6px;
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .05em;
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      box-shadow: -2px 0 8px rgba(0,0,0,.18);
-      transition: background .15s;
     }
-    #nexos-toggle:hover { background: #1677d2; }
-
-    #nexos-panel {
-      position: fixed;
-      right: 0;
-      top: 0;
-      height: 100vh;
-      width: 360px;
-      background: #fff;
-      border-left: 1px solid #e5e7eb;
-      box-shadow: -4px 0 24px rgba(0,0,0,.12);
-      z-index: 99998;
-      display: flex;
-      flex-direction: column;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 13px;
-      color: #111;
-      transition: transform .2s ease;
-    }
-    #nexos-panel.hidden { transform: translateX(100%); }
-
-    #nexos-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 14px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #1F93FF;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    #nexos-header h2 { margin: 0; font-size: 14px; font-weight: 700; letter-spacing: .03em; }
-    #nexos-close {
-      background: none; border: none; color: #fff;
-      cursor: pointer; font-size: 18px; line-height: 1; padding: 2px 4px;
-    }
-
-    #nexos-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .nx-section {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .nx-section-title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      padding: 8px 10px;
-      background: #f9fafb;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .nx-section-body { padding: 8px 10px; }
-
-    .nx-steps-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .nx-step-btn {
-      text-align: left;
-      padding: 6px 8px;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      cursor: pointer;
-      font-size: 12px;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all .1s;
-    }
-    .nx-step-btn:hover { border-color: #1F93FF; color: #1F93FF; }
-    .nx-step-btn.selected {
-      background: #eff6ff;
-      border-color: #1F93FF;
-      color: #1F93FF;
-      font-weight: 500;
-    }
-    .nx-step-btn .nx-check {
-      width: 14px; height: 14px; border-radius: 3px;
-      border: 1.5px solid #d1d5db;
-      background: #fff;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10px;
-    }
-    .nx-step-btn.selected .nx-check {
-      background: #1F93FF; border-color: #1F93FF; color: #fff;
-    }
-
-    .nx-cat-btn {
-      width: 100%;
-      text-align: left;
-      padding: 7px 10px;
-      border: none;
-      border-bottom: 1px solid #e5e7eb;
-      background: #f3f4f6;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .nx-cat-btn:last-child { border-bottom: none; }
-    .nx-cat-btn:hover { background: #e5e7eb; }
-    .nx-cat-content {
-      padding: 8px 10px;
-      border-bottom: 1px solid #e5e7eb;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .nx-df-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .nx-df-btn {
-      padding: 7px;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      color: #374151;
-      text-align: center;
-      transition: all .1s;
-    }
-    .nx-df-btn:hover { border-color: #6b7280; }
-    .nx-df-btn.selected-ok  { background: #dcfce7; border-color: #16a34a; color: #15803d; }
-    .nx-df-btn.selected-warn{ background: #fef9c3; border-color: #ca8a04; color: #a16207; }
-    .nx-df-btn.selected-info{ background: #eff6ff; border-color: #1F93FF; color: #1677d2; }
-    .nx-df-btn.selected-gray{ background: #f3f4f6; border-color: #6b7280; color: #374151; }
-
-    .nx-selected-list {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .nx-selected-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 8px;
-      background: #eff6ff;
-      border-radius: 5px;
-      font-size: 12px;
-      color: #1677d2;
-    }
-    .nx-selected-item .nx-rm {
-      margin-left: auto;
-      background: none;
-      border: none;
-      color: #93c5fd;
-      cursor: pointer;
-      font-size: 14px;
-      line-height: 1;
-      padding: 0 2px;
-      flex-shrink: 0;
-    }
-    .nx-selected-item .nx-rm:hover { color: #1F93FF; }
-    .nx-drag-handle {
-      cursor: grab;
-      color: #93c5fd;
-      font-size: 12px;
-      flex-shrink: 0;
-    }
-
-    .nx-input {
-      width: 100%;
-      padding: 7px 8px;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      font-size: 12px;
-      color: #111;
-      box-sizing: border-box;
-      outline: none;
-    }
-    .nx-input:focus { border-color: #1F93FF; }
-
-    .nx-custom-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 6px;
-    }
-    .nx-custom-row input { flex: 1; }
-    .nx-add-btn {
-      padding: 7px 10px;
-      border-radius: 6px;
-      border: 1px solid #1F93FF;
-      background: #eff6ff;
-      color: #1F93FF;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .nx-add-btn:hover { background: #1F93FF; color: #fff; }
-
-    #nexos-footer {
-      padding: 10px 12px;
-      border-top: 1px solid #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex-shrink: 0;
-      background: #f9fafb;
-    }
-
-    .nx-btn {
-      padding: 9px 12px;
-      border-radius: 7px;
-      border: none;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all .15s;
-      width: 100%;
-    }
-    .nx-btn:disabled { opacity: .5; cursor: not-allowed; }
-    .nx-btn-primary { background: #1F93FF; color: #fff; }
-    .nx-btn-primary:hover:not(:disabled) { background: #1677d2; }
-    .nx-btn-secondary { background: #fff; color: #374151; border: 1px solid #d1d5db; }
-    .nx-btn-secondary:hover:not(:disabled) { border-color: #9ca3af; }
-    .nx-btn-danger { background: #fff; color: #dc2626; border: 1px solid #fca5a5; }
-    .nx-btn-danger:hover:not(:disabled) { background: #fee2e2; }
-    .nx-btn-ok { background: #16a34a; color: #fff; }
-
-    .nx-confirm-box {
-      padding: 10px;
-      background: #fefce8;
-      border: 1px solid #fde047;
-      border-radius: 7px;
-      font-size: 12px;
-      color: #854d0e;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .nx-confirm-box strong { display: block; margin-bottom: 2px; }
-    .nx-confirm-actions { display: flex; gap: 6px; }
-    .nx-confirm-actions button { flex: 1; }
-
-    .nx-result-box {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 7px;
-      padding: 10px;
-      font-size: 12px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      color: #111;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-
-    .nx-status {
-      font-size: 12px;
-      text-align: center;
-      padding: 4px;
-    }
-    .nx-status.ok { color: #16a34a; }
-    .nx-status.err { color: #dc2626; }
-
-    .nx-token-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-    .nx-token-row input { flex: 1; }
-    .nx-token-save {
-      padding: 7px 10px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      background: #fff;
-      font-size: 12px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .nx-token-save:hover { border-color: #1F93FF; color: #1F93FF; }
-
-    .nx-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: #1F93FF;
-      color: #fff;
-      border-radius: 99px;
-      font-size: 10px;
-      font-weight: 700;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-    }
-
-    .nx-tab-bar {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 4px;
-    }
-    .nx-tab {
-      flex: 1;
-      padding: 6px;
-      border-radius: 6px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      text-align: center;
-      color: #6b7280;
-    }
-    .nx-tab.active {
-      background: #eff6ff;
-      border-color: #1F93FF;
-      color: #1F93FF;
-      font-weight: 600;
-    }
-  `;
-  document.documentElement.appendChild(style);
-
-  // ─── Estrutura HTML ───────────────────────────────────────────────────────
-  const toggle = document.createElement('button');
-  toggle.id = 'nexos-toggle';
-  toggle.style.cssText = 'position:fixed!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;z-index:2147483647!important;background:#1F93FF!important;color:#fff!important;border:none!important;border-radius:8px 0 0 8px!important;padding:10px 6px!important;cursor:pointer!important;font-size:11px!important;font-weight:700!important;letter-spacing:.05em!important;writing-mode:vertical-rl!important;box-shadow:-2px 0 8px rgba(0,0,0,.18)!important;display:flex!important;';
-  toggle.textContent = 'NEXOS';
-  toggle.title = 'Abrir Nexos (Alt+N)';
-  document.documentElement.appendChild(toggle);
-
-  const panel = document.createElement('div');
-  panel.id = 'nexos-panel';
-  panel.classList.add('hidden');
-  panel.style.cssText = 'position:fixed!important;right:0!important;top:0!important;height:100vh!important;width:360px!important;background:#fff!important;border-left:1px solid #e5e7eb!important;box-shadow:-4px 0 24px rgba(0,0,0,.12)!important;z-index:2147483646!important;display:flex!important;flex-direction:column!important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif!important;font-size:13px!important;color:#111!important;transition:transform .2s ease!important;';
-  panel.innerHTML = `
-    <div id="nexos-header">
-      <h2>🔗 Nexos</h2>
-      <button id="nexos-close" title="Fechar">×</button>
-    </div>
-    <div id="nexos-body" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;">
-
-      <!-- Token -->
-      <div class="nx-section">
-        <div class="nx-section-title">🔑 Token do Chatwoot</div>
-        <div class="nx-section-body">
-          <div class="nx-token-row">
-            <input class="nx-input" id="nx-token" type="password" placeholder="Cole seu token de acesso..."/>
-            <button class="nx-token-save" id="nx-token-save">Salvar</button>
-          </div>
-          <div style="font-size:11px;color:#9ca3af;margin-top:5px;">
-            Chatwoot → Configurações → Perfil → Token de acesso
-          </div>
-          <div id="nx-token-status" style="font-size:11px;color:#16a34a;margin-top:4px;display:none;">✓ Token salvo</div>
-        </div>
-      </div>
-
-      <!-- Passos -->
-      <div class="nx-section">
-        <div class="nx-section-title" style="display:flex;align-items:center;justify-content:space-between;">
-          <span>📋 Passos realizados</span>
-          <span id="nx-steps-count" class="nx-badge" style="display:none;">0</span>
-        </div>
-        <div class="nx-section-body">
-
-          <!-- Favoritos -->
-          <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;">⭐ Mais usados</div>
-          <div class="nx-steps-grid" id="nx-fav-grid"></div>
-
-          <!-- Categorias -->
-          <div style="font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;">📂 Outras ações</div>
-          <div id="nx-cats"></div>
-
-          <!-- Personalizado -->
-          <div class="nx-custom-row">
-            <input class="nx-input" id="nx-custom-input" placeholder="Ação personalizada..."/>
-            <button class="nx-add-btn" id="nx-custom-add">+ Adicionar</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Selecionados -->
-      <div class="nx-section" id="nx-selected-section" style="display:none;">
-        <div class="nx-section-title">✅ Passos selecionados</div>
-        <div class="nx-section-body">
-          <div class="nx-selected-list" id="nx-selected-list"></div>
-        </div>
-      </div>
-
-      <!-- Desfecho -->
-      <div class="nx-section">
-        <div class="nx-section-title">🏁 Desfecho</div>
-        <div class="nx-section-body">
-          <div class="nx-df-grid" id="nx-df-grid"></div>
-        </div>
-      </div>
-
-      <!-- Observação -->
-      <div class="nx-section">
-        <div class="nx-section-title">📝 Observação adicional (opcional)</div>
-        <div class="nx-section-body">
-          <textarea class="nx-input" id="nx-obs" rows="2" placeholder="Ex: cliente orientado sobre certificado digital" style="resize:vertical;"></textarea>
-        </div>
-      </div>
-
-    </div>
-    <div id="nexos-footer">
-      <div class="nx-tab-bar">
-        <button class="nx-tab active" id="nx-tab-tec">Resumo técnico</button>
-        <button class="nx-tab" id="nx-tab-cli">Para o cliente</button>
-      </div>
-      <div id="nx-preview" class="nx-result-box" style="display:none;"></div>
-      <div id="nx-confirm-public" style="display:none;" class="nx-confirm-box">
-        <div><strong>⚠️ Nota pública</strong>Esta nota ficará visível para o cliente no Chatwoot. Confirma o envio?</div>
-        <div class="nx-confirm-actions">
-          <button class="nx-btn nx-btn-primary" id="nx-confirm-yes">Confirmar</button>
-          <button class="nx-btn nx-btn-secondary" id="nx-confirm-no">Cancelar</button>
-        </div>
-      </div>
-      <div id="nx-status" class="nx-status" style="display:none;"></div>
-      <button class="nx-btn nx-btn-primary" id="nx-btn-gerar">Gerar resumo</button>
-      <div id="nx-action-btns" style="display:none;flex-direction:column;gap:6px;">
-        <button class="nx-btn nx-btn-secondary" id="nx-btn-copy">📋 Copiar texto</button>
-        <button class="nx-btn nx-btn-secondary" id="nx-btn-private">🔒 Enviar nota privada</button>
-        <button class="nx-btn nx-btn-danger"    id="nx-btn-public">👁 Enviar ao cliente (nota pública)</button>
-        <button class="nx-btn nx-btn-secondary" id="nx-btn-reset" style="font-size:12px;color:#9ca3af;border-color:#e5e7eb;">↺ Novo chamado</button>
-      </div>
-    </div>
-  `;
-  document.documentElement.appendChild(panel);
-
-  // ─── Referências aos elementos ────────────────────────────────────────────
-  const $ = id => document.getElementById(id);
-
-  // ─── Token ───────────────────────────────────────────────────────────────
-  const savedToken = GM_getValue('nexos_cw_token', '');
-  $('nx-token').value = savedToken;
-  if (savedToken) $('nx-token-status').style.display = 'block';
-
-  $('nx-token-save').addEventListener('click', () => {
-    const v = $('nx-token').value.trim();
-    GM_setValue('nexos_cw_token', v);
-    const s = $('nx-token-status');
-    s.style.display = 'block';
-    s.textContent = v ? '✓ Token salvo' : '✓ Token removido';
-    setTimeout(() => { s.style.display = 'none'; }, 2000);
   });
 
-  // ─── Favoritos ───────────────────────────────────────────────────────────
-  const favGrid = $('nx-fav-grid');
-  FAV.forEach(l => {
-    const btn = document.createElement('button');
-    btn.className = 'nx-step-btn';
-    btn.dataset.label = l;
-    btn.innerHTML = `<span class="nx-check"></span><span>${l}</span>`;
-    btn.addEventListener('click', () => toggleStep(l));
-    favGrid.appendChild(btn);
+  // ─── Toggle ───────────────────────────────────────────────────────────────
+  toggleBtn.addEventListener('click', () => {
+    iframe.style.display = 'block';
+    toggleBtn.style.display = 'none';
   });
 
-  // ─── Categorias ──────────────────────────────────────────────────────────
-  const catsEl = $('nx-cats');
-  CATS.forEach(cat => {
-    const catBtn = document.createElement('button');
-    catBtn.className = 'nx-cat-btn';
-    catBtn.innerHTML = `<span>${cat.g}</span><span class="nx-cat-arrow">▸</span>`;
-    catsEl.appendChild(catBtn);
-
-    const catContent = document.createElement('div');
-    catContent.className = 'nx-cat-content';
-    catContent.style.display = 'none';
-    cat.a.forEach(l => {
-      const btn = document.createElement('button');
-      btn.className = 'nx-step-btn';
-      btn.dataset.label = l;
-      btn.innerHTML = `<span class="nx-check"></span><span>${l}</span>`;
-      btn.addEventListener('click', () => toggleStep(l));
-      catContent.appendChild(btn);
-    });
-    catsEl.appendChild(catContent);
-
-    catBtn.addEventListener('click', () => {
-      const isOpen = catContent.style.display !== 'none';
-      // fecha todos
-      catsEl.querySelectorAll('.nx-cat-content').forEach(el => el.style.display = 'none');
-      catsEl.querySelectorAll('.nx-cat-arrow').forEach(el => el.textContent = '▸');
-      if (!isOpen) {
-        catContent.style.display = 'flex';
-        catBtn.querySelector('.nx-cat-arrow').textContent = '▾';
-      }
-    });
-  });
-
-  // ─── Personalizado ───────────────────────────────────────────────────────
-  $('nx-custom-add').addEventListener('click', addCustom);
-  $('nx-custom-input').addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
-
-  function addCustom() {
-    const v = $('nx-custom-input').value.trim();
-    if (!v) return;
-    toggleStep(v);
-    $('nx-custom-input').value = '';
-  }
-
-  // ─── Desfecho ────────────────────────────────────────────────────────────
-  const dfCls = ['selected-ok', 'selected-warn', 'selected-info', 'selected-gray'];
-  DESFECHOS.forEach((d, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'nx-df-btn';
-    btn.textContent = d.l;
-    btn.dataset.df = d.l;
-    btn.dataset.cls = dfCls[i];
-    btn.addEventListener('click', () => {
-      selectedDf = selectedDf === d.l ? '' : d.l;
-      renderDf();
-    });
-    $('nx-df-grid').appendChild(btn);
-  });
-
-  function renderDf() {
-    $('nx-df-grid').querySelectorAll('.nx-df-btn').forEach(btn => {
-      dfCls.forEach(c => btn.classList.remove(c));
-      if (btn.dataset.df === selectedDf) btn.classList.add(btn.dataset.cls);
-    });
-  }
-
-  // ─── Observação ──────────────────────────────────────────────────────────
-  $('nx-obs').addEventListener('input', () => { obsText = $('nx-obs').value; });
-
-  // ─── Lógica de steps ─────────────────────────────────────────────────────
-  function toggleStep(label) {
-    if (selectedSteps.includes(label)) {
-      selectedSteps = selectedSteps.filter(s => s !== label);
-    } else {
-      selectedSteps.push(label);
-    }
-    renderSteps();
-    resetResult();
-  }
-
-  function renderSteps() {
-    // Atualiza botões de seleção (FAV + cats)
-    document.querySelectorAll('.nx-step-btn').forEach(btn => {
-      const sel = selectedSteps.includes(btn.dataset.label);
-      btn.classList.toggle('selected', sel);
-      btn.querySelector('.nx-check').textContent = sel ? '✓' : '';
-    });
-
-    // Badge
-    const badge = $('nx-steps-count');
-    if (selectedSteps.length > 0) {
-      badge.style.display = 'inline-flex';
-      badge.textContent = selectedSteps.length;
-    } else {
-      badge.style.display = 'none';
-    }
-
-    // Lista de selecionados
-    const section = $('nx-selected-section');
-    const list = $('nx-selected-list');
-    list.innerHTML = '';
-    if (selectedSteps.length === 0) {
-      section.style.display = 'none';
-      return;
-    }
-    section.style.display = 'block';
-
-    selectedSteps.forEach((s, i) => {
-      const item = document.createElement('div');
-      item.className = 'nx-selected-item';
-      item.draggable = true;
-      item.dataset.idx = i;
-      item.innerHTML = `
-        <span class="nx-drag-handle" title="Arrastar">⠿</span>
-        <span style="flex:1;font-size:12px;">${s}</span>
-        <button class="nx-rm" title="Remover">×</button>
-      `;
-      item.querySelector('.nx-rm').addEventListener('click', () => toggleStep(s));
-
-      // Drag-and-drop
-      item.addEventListener('dragstart', e => { e.dataTransfer.setData('text/plain', i); });
-      item.addEventListener('dragover', e => e.preventDefault());
-      item.addEventListener('drop', e => {
-        e.preventDefault();
-        const from = parseInt(e.dataTransfer.getData('text/plain'));
-        const to = i;
-        if (from === to) return;
-        const arr = [...selectedSteps];
-        const [el] = arr.splice(from, 1);
-        arr.splice(to, 0, el);
-        selectedSteps = arr;
-        renderSteps();
-      });
-
-      list.appendChild(item);
-    });
-  }
-
-  // ─── Tabs (técnico / cliente) ─────────────────────────────────────────────
-  let activeTab = 'tec';
-  let resumoTecnico = '';
-  let resumoCliente = '';
-
-  $('nx-tab-tec').addEventListener('click', () => setTab('tec'));
-  $('nx-tab-cli').addEventListener('click', () => setTab('cli'));
-
-  function setTab(tab) {
-    activeTab = tab;
-    $('nx-tab-tec').classList.toggle('active', tab === 'tec');
-    $('nx-tab-cli').classList.toggle('active', tab === 'cli');
-    const preview = $('nx-preview');
-    if (tab === 'tec' && resumoTecnico) { preview.textContent = resumoTecnico; preview.style.display = 'block'; }
-    else if (tab === 'cli' && resumoCliente) { preview.textContent = resumoCliente; preview.style.display = 'block'; }
-    else { preview.style.display = 'none'; }
-    $('nx-confirm-public').style.display = 'none';
-    clearStatus();
-  }
-
-  // ─── Gerar resumo ────────────────────────────────────────────────────────
-  $('nx-btn-gerar').addEventListener('click', () => {
-    if (selectedSteps.length === 0) {
-      showStatus('Selecione ao menos um passo.', 'err');
-      return;
-    }
-    resumoTecnico = buildResumoTecnico(selectedSteps, selectedDf, obsText);
-    resumoCliente = buildResumoCliente(selectedSteps, selectedDf, obsText);
-
-    const preview = $('nx-preview');
-    preview.textContent = activeTab === 'tec' ? resumoTecnico : resumoCliente;
-    preview.style.display = 'block';
-
-    $('nx-btn-gerar').style.display = 'none';
-    $('nx-action-btns').style.display = 'flex';
-    clearStatus();
-  });
-
-  // ─── Copiar ──────────────────────────────────────────────────────────────
-  $('nx-btn-copy').addEventListener('click', () => {
-    const txt = activeTab === 'tec' ? resumoTecnico : resumoCliente;
-    navigator.clipboard.writeText(txt).then(() => {
-      showStatus('✓ Copiado!', 'ok');
-    }).catch(() => {
-      // fallback
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showStatus('✓ Copiado!', 'ok');
-    });
-  });
-
-  // ─── Enviar nota privada ─────────────────────────────────────────────────
-  $('nx-btn-private').addEventListener('click', () => sendNote(true));
-
-  // ─── Enviar nota pública (com confirmação) ────────────────────────────────
-  $('nx-btn-public').addEventListener('click', () => {
-    $('nx-confirm-public').style.display = 'block';
-    clearStatus();
-  });
-  $('nx-confirm-no').addEventListener('click', () => {
-    $('nx-confirm-public').style.display = 'none';
-  });
-  $('nx-confirm-yes').addEventListener('click', () => {
-    $('nx-confirm-public').style.display = 'none';
-    sendNote(false);
-  });
-
-  async function sendNote(isPrivate) {
-    const token = GM_getValue('nexos_cw_token', '').trim();
-    if (!token) { showStatus('Configure o token do Chatwoot primeiro.', 'err'); return; }
-
-    currentIds = getIdsFromUrl();
-    if (!currentIds) { showStatus('Não foi possível identificar a conversa.', 'err'); return; }
-
-    const content = isPrivate ? resumoTecnico : resumoCliente;
-    const btnP = $('nx-btn-private');
-    const btnPub = $('nx-btn-public');
-    btnP.disabled = true; btnPub.disabled = true;
-    showStatus('Enviando...', '');
-
-    try {
-      await chatwootPost(currentIds.accountId, currentIds.conversationId, content, isPrivate, token);
-      showStatus(isPrivate ? '✓ Nota privada enviada!' : '✓ Nota pública enviada ao cliente!', 'ok');
-    } catch (e) {
-      showStatus('Erro ao enviar. Verifique o token e a URL.', 'err');
-    } finally {
-      btnP.disabled = false; btnPub.disabled = false;
-    }
-  }
-
-  // ─── Novo chamado ────────────────────────────────────────────────────────
-  $('nx-btn-reset').addEventListener('click', () => {
-    selectedSteps = [];
-    selectedDf = '';
-    obsText = '';
-    resumoTecnico = '';
-    resumoCliente = '';
-    $('nx-obs').value = '';
-    $('nx-custom-input').value = '';
-    $('nx-preview').style.display = 'none';
-    $('nx-preview').textContent = '';
-    $('nx-btn-gerar').style.display = 'flex';
-    $('nx-action-btns').style.display = 'none';
-    $('nx-confirm-public').style.display = 'none';
-    renderSteps();
-    renderDf();
-    clearStatus();
-    // Fecha todas as categorias
-    catsEl.querySelectorAll('.nx-cat-content').forEach(el => el.style.display = 'none');
-    catsEl.querySelectorAll('.nx-cat-arrow').forEach(el => el.textContent = '▸');
-  });
-
-  // ─── Status ──────────────────────────────────────────────────────────────
-  function showStatus(msg, type) {
-    const el = $('nx-status');
-    el.textContent = msg;
-    el.className = 'nx-status ' + type;
-    el.style.display = 'block';
-  }
-  function clearStatus() {
-    const el = $('nx-status');
-    el.style.display = 'none';
-    el.textContent = '';
-  }
-
-  function resetResult() {
-    resumoTecnico = '';
-    resumoCliente = '';
-    $('nx-preview').style.display = 'none';
-    $('nx-preview').textContent = '';
-    $('nx-btn-gerar').style.display = 'flex';
-    $('nx-action-btns').style.display = 'none';
-    $('nx-confirm-public').style.display = 'none';
-    clearStatus();
-  }
-
-  // ─── Abrir / fechar painel ────────────────────────────────────────────────
-  function openPanel() {
-    currentIds = getIdsFromUrl();
-    panel.style.transform = 'translateX(0)!important';
-    panel.style.setProperty('transform', 'translateX(0)', 'important');
-    toggle.style.setProperty('display', 'none', 'important');
-  }
-  function closePanel() {
-    panel.style.setProperty('transform', 'translateX(100%)', 'important');
-    toggle.style.setProperty('display', 'flex', 'important');
-  }
-
-  toggle.addEventListener('click', openPanel);
-  $('nexos-close').addEventListener('click', closePanel);
-
-  // Atalho Alt+N
   document.addEventListener('keydown', e => {
     if (e.altKey && e.key === 'n') {
-      panel.classList.contains('hidden') ? openPanel() : closePanel();
+      const open = iframe.style.display !== 'none';
+      iframe.style.display = open ? 'none' : 'block';
+      toggleBtn.style.display = open ? 'block' : 'none';
     }
   });
 
-  // ─── Detecta troca de conversa (SPA) ─────────────────────────────────────
+  // ─── Detecta troca de conversa (SPA) ────────────────────────────────────
   let lastUrl = location.href;
   new MutationObserver(() => {
     if (location.href !== lastUrl) {
       lastUrl = location.href;
-      currentIds = getIdsFromUrl();
-      // Reseta resultado ao trocar de conversa
-      resetResult();
-      clearStatus();
     }
   }).observe(document.body, { childList: true, subtree: true });
 
