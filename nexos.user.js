@@ -5,6 +5,9 @@
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
+// @match        https://app.chatwoot.com/app/accounts/*/team/*/conversations/*
+// @match        https://app.chatwoot.com/app/accounts/*/mentions/conversations/*
+// @match        https://app.chatwoot.com/app/accounts/*/*/conversations/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
@@ -18,7 +21,7 @@
 
   // ─── Extrai accountId e conversationId da URL ────────────────────────────
   function getIdsFromUrl() {
-    const m = location.href.match(/accounts\/(\d+)\/conversations\/(\d+)/);
+    const m = location.href.match(/accounts\/(\d+)(?:\/[^/]+)*\/conversations\/(\d+)/);
     return m ? { accountId: m[1], conversationId: m[2] } : null;
   }
 
