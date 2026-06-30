@@ -618,7 +618,7 @@
       font-weight: 600;
     }
   `;
-  document.body.appendChild(style);
+  document.documentElement.appendChild(style);
 
   // ─── Estrutura HTML ───────────────────────────────────────────────────────
   const toggle = document.createElement('button');
@@ -626,7 +626,7 @@
   toggle.style.cssText = 'position:fixed!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;z-index:2147483647!important;background:#1F93FF!important;color:#fff!important;border:none!important;border-radius:8px 0 0 8px!important;padding:10px 6px!important;cursor:pointer!important;font-size:11px!important;font-weight:700!important;letter-spacing:.05em!important;writing-mode:vertical-rl!important;box-shadow:-2px 0 8px rgba(0,0,0,.18)!important;display:flex!important;';
   toggle.textContent = 'NEXOS';
   toggle.title = 'Abrir Nexos (Alt+N)';
-  document.body.appendChild(toggle);
+  document.documentElement.appendChild(toggle);
 
   const panel = document.createElement('div');
   panel.id = 'nexos-panel';
@@ -726,7 +726,7 @@
       </div>
     </div>
   `;
-  document.body.appendChild(panel);
+  document.documentElement.appendChild(panel);
 
   // ─── Referências aos elementos ────────────────────────────────────────────
   const $ = id => document.getElementById(id);
