@@ -176,7 +176,6 @@
     fontSize: '13px',
     color: '#111',
     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
-    overflow: 'hidden',
   });
 
   // Header
@@ -199,9 +198,10 @@
   const body = document.createElement('div');
   body.id = 'nexos-modal-body';
   Object.assign(body.style, {
-    overflowY: 'auto', padding: '14px',
+    overflowY: 'scroll', padding: '14px',
     display: 'flex', flexDirection: 'column', gap: '10px',
-    minHeight: '0', flex: '1 1 0',
+    minHeight: '0', flex: '1 1 auto',
+    height: '0',
   });
   modal.appendChild(body);
 
@@ -220,7 +220,7 @@
   // ─── Helpers de estilo ────────────────────────────────────────────────────
   function sec(title) {
     const wrap = document.createElement('div');
-    Object.assign(wrap.style, { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' });
+    Object.assign(wrap.style, { border: '1px solid #e5e7eb', borderRadius: '8px' });
     const t = document.createElement('div');
     Object.assign(t.style, {
       fontSize: '11px', fontWeight: '700', color: '#6b7280',
