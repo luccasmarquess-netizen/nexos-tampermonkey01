@@ -615,11 +615,12 @@
       font-weight: 600;
     }
   `;
-  document.head.appendChild(style);
+  document.body.appendChild(style);
 
   // ─── Estrutura HTML ───────────────────────────────────────────────────────
   const toggle = document.createElement('button');
   toggle.id = 'nexos-toggle';
+  toggle.style.cssText = 'position:fixed!important;right:0!important;top:50%!important;transform:translateY(-50%)!important;z-index:2147483647!important;background:#1F93FF!important;color:#fff!important;border:none!important;border-radius:8px 0 0 8px!important;padding:10px 6px!important;cursor:pointer!important;font-size:11px!important;font-weight:700!important;letter-spacing:.05em!important;writing-mode:vertical-rl!important;box-shadow:-2px 0 8px rgba(0,0,0,.18)!important;display:flex!important;';
   toggle.textContent = 'NEXOS';
   toggle.title = 'Abrir Nexos (Alt+N)';
   document.body.appendChild(toggle);
@@ -627,12 +628,13 @@
   const panel = document.createElement('div');
   panel.id = 'nexos-panel';
   panel.classList.add('hidden');
+  panel.style.cssText = 'position:fixed!important;right:0!important;top:0!important;height:100vh!important;width:360px!important;background:#fff!important;border-left:1px solid #e5e7eb!important;box-shadow:-4px 0 24px rgba(0,0,0,.12)!important;z-index:2147483646!important;display:flex!important;flex-direction:column!important;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif!important;font-size:13px!important;color:#111!important;transition:transform .2s ease!important;';
   panel.innerHTML = `
     <div id="nexos-header">
       <h2>🔗 Nexos</h2>
       <button id="nexos-close" title="Fechar">×</button>
     </div>
-    <div id="nexos-body">
+    <div id="nexos-body" style="flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;">
 
       <!-- Token -->
       <div class="nx-section">
@@ -1033,12 +1035,13 @@
   // ─── Abrir / fechar painel ────────────────────────────────────────────────
   function openPanel() {
     currentIds = getIdsFromUrl();
-    panel.classList.remove('hidden');
-    toggle.style.display = 'none';
+    panel.style.transform = 'translateX(0)!important';
+    panel.style.setProperty('transform', 'translateX(0)', 'important');
+    toggle.style.setProperty('display', 'none', 'important');
   }
   function closePanel() {
-    panel.classList.add('hidden');
-    toggle.style.display = 'flex';
+    panel.style.setProperty('transform', 'translateX(100%)', 'important');
+    toggle.style.setProperty('display', 'flex', 'important');
   }
 
   toggle.addEventListener('click', openPanel);
