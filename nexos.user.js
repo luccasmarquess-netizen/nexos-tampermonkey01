@@ -167,9 +167,9 @@
   Object.assign(modal.style, {
     background: '#fff',
     borderRadius: '12px',
-    width: '520px',
-    maxWidth: '95vw',
-    maxHeight: '90vh',
+    width: '680px',
+    maxWidth: '98vw',
+    maxHeight: '95vh',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -201,7 +201,7 @@
     overflowY: 'scroll', padding: '14px',
     display: 'flex', flexDirection: 'column', gap: '10px',
     minHeight: '0', flex: '1 1 auto',
-    height: '0',
+    height: '0', minHeight: '400px',
   });
   modal.appendChild(body);
 
