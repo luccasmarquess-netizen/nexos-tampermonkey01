@@ -860,8 +860,7 @@ document.getElementById('close-btn').addEventListener('click', () => {
   iframe.addEventListener('load', () => {});
   document.documentElement.appendChild(iframe);
 
-  const blob = new Blob([iframeContent], { type: 'text/html' });
-  iframe.src = URL.createObjectURL(blob);
+  iframe.srcdoc = iframeContent;
 
   // ─── Comunicação com o iframe ─────────────────────────────────────────────
   window.addEventListener('message', e => {
