@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.4.0
+// @version      1.5.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -127,7 +127,7 @@
     return txt;
   }
 
-  function buildCli(steps, df, obs) {
+  function buildCli(steps, df, obs, fim) {
     const itens = [];
     for (const step of steps) {
       for (const [re, texto] of TRADUCOES) {
@@ -145,6 +145,7 @@
     let txt = itens.join('\n');
     if (df && dm[df]) txt += dm[df];
     txt += '\n\nCaso tenha qualquer dúvida, estamos à disposição.';
+    if (fim) txt += '\n\n' + fim;
     return txt;
   }
 
@@ -420,6 +421,20 @@
   dfSec.body.appendChild(dfGrid);
   body.appendChild(dfSec.wrap);
 
+  // ─── Seção Mensagem de finalização ──────────────────────────────────────────
+  const fimSec = sec('💬 Mensagem de finalização (para o cliente)');
+  const fimHint = document.createElement('div');
+  fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
+  fimHint.textContent = 'Salva automaticamente. Aparece no final do resumo para o cliente.';
+  const fimInp = inp('Ex: Qualquer dúvida estou à disposição! Att, Luccas — Suporte Consumer', 'textarea');
+  fimInp.rows = 3;
+  fimInp.style.resize = 'vertical';
+  fimInp.value = GM_getValue('nexos_fim', '');
+  fimInp.addEventListener('input', () => GM_setValue('nexos_fim', fimInp.value.trim()));
+  fimSec.body.appendChild(fimHint);
+  fimSec.body.appendChild(fimInp);
+  body.appendChild(fimSec.wrap);
+
   // ─── Seção Observação ─────────────────────────────────────────────────────
   const obsSec = sec('📝 Observação adicional (opcional)');
   const obsInp = inp('Ex: cliente orientado sobre certificado digital', 'textarea');
@@ -575,8 +590,9 @@
   btnGerar.addEventListener('click', () => {
     if (!selectedSteps.length) { showStatus('Selecione ao menos um passo.', 'err'); return; }
     const obs = obsInp.value.trim();
+    const fim = fimInp.value.trim();
     resumoTec = buildTec(selectedSteps, selectedDf, obs);
-    resumoCli = buildCli(selectedSteps, selectedDf, obs);
+    resumoCli = buildCli(selectedSteps, selectedDf, obs, fim);
     preview.textContent = activeTab === 'tec' ? resumoTec : resumoCli;
     preview.style.display = 'block';
     btnGerar.style.display = 'none';
@@ -621,16 +637,21 @@
   });
 
   btnCopy.addEventListener('click', () => {
+    // Relê sempre o estado atual — evita bug de closure com valor antigo
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
-    navigator.clipboard.writeText(txt)
-      .then(() => showStatus('✓ Copiado!', 'ok'))
-      .catch(() => {
-        const ta = document.createElement('textarea');
-        ta.value = txt;
-        Object.assign(ta.style, { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' });
-        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-        showStatus('✓ Copiado!', 'ok');
-      });
+    if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
+    const doCopy = () => {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      Object.assign(ta.style, { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' });
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      try { document.execCommand('copy'); showStatus('✓ Copiado!', 'ok'); }
+      catch(e) { showStatus('Erro ao copiar.', 'err'); }
+      document.body.removeChild(ta);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(txt).then(() => showStatus('✓ Copiado!', 'ok')).catch(doCopy);
+    } else { doCopy(); }
   });
 
 
