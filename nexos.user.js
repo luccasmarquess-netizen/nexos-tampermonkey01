@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.2.0
+// @version      1.4.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -18,6 +18,10 @@
 
 (function () {
   'use strict';
+
+  // Chave interna — mesma que NEXOS_INTERNAL_KEY no Worker
+  const NEXOS_KEY = 'nexos-programaconsumer-2025';
+  const WORKER_URL = 'https://nexos-tampermonkey.luccasmarquess.workers.dev';
 
   function getIdsFromUrl() {
     const m = location.href.match(/accounts\/(\d+)(?:\/[^/]+)*\/conversations\/(\d+)/);
@@ -295,36 +299,6 @@
     chk.style.color = '#fff';
   }
 
-  // ─── Seção Token ─────────────────────────────────────────────────────────
-  const tokenSec = sec('🔑 Token do Chatwoot');
-  const tokenRow = document.createElement('div');
-  tokenRow.style.cssText = 'display:flex;gap:6px;';
-  const tokenInp = inp('Cole seu token de acesso...', 'password');
-  tokenInp.style.flex = '1';
-  tokenInp.value = GM_getValue('nexos_token', '');
-  const tokenSaveBtn = document.createElement('button');
-  tokenSaveBtn.textContent = 'Salvar';
-  Object.assign(tokenSaveBtn.style, {
-    padding: '7px 12px', borderRadius: '6px', border: '1px solid #d1d5db',
-    background: '#fff', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
-  });
-  const tokenHint = document.createElement('div');
-  tokenHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-top:5px;';
-  tokenHint.textContent = 'Chatwoot → Configurações → Perfil → Token de acesso';
-  const tokenStatus = document.createElement('div');
-  tokenStatus.style.cssText = 'font-size:11px;color:#16a34a;margin-top:4px;display:none;';
-  tokenSaveBtn.addEventListener('click', () => {
-    const v = tokenInp.value.trim();
-    GM_setValue('nexos_token', v);
-    tokenStatus.textContent = v ? '✓ Token salvo' : '✓ Token removido';
-    tokenStatus.style.display = 'block';
-    setTimeout(() => tokenStatus.style.display = 'none', 2000);
-  });
-  tokenRow.appendChild(tokenInp); tokenRow.appendChild(tokenSaveBtn);
-  tokenSec.body.appendChild(tokenRow);
-  tokenSec.body.appendChild(tokenHint);
-  tokenSec.body.appendChild(tokenStatus);
-  body.appendChild(tokenSec.wrap);
 
   // ─── Seção Passos ─────────────────────────────────────────────────────────
   const stepsSec = sec('📋 Passos realizados');
@@ -488,24 +462,6 @@
   });
   ftr.appendChild(preview);
 
-  // Confirm box
-  const confirmBox = document.createElement('div');
-  Object.assign(confirmBox.style, {
-    padding: '10px', background: '#fefce8', border: '1px solid #fde047',
-    borderRadius: '7px', fontSize: '12px', color: '#854d0e',
-    display: 'none', flexDirection: 'column', gap: '8px',
-  });
-  confirmBox.innerHTML = '<div><strong>⚠️ Nota pública</strong><br>Esta nota ficará visível para o cliente no Chatwoot. Confirma?</div>';
-  const confirmActions = document.createElement('div');
-  confirmActions.style.cssText = 'display:flex;gap:6px;';
-  const confirmYes = btn('Confirmar', { background: '#1F93FF', color: '#fff', flex: '1' });
-  const confirmNo = btn('Cancelar', { background: '#fff', color: '#374151', border: '1px solid #d1d5db', flex: '1' });
-  confirmActions.appendChild(confirmYes); confirmActions.appendChild(confirmNo);
-  confirmBox.appendChild(confirmActions);
-  ftr.appendChild(confirmBox);
-
-  confirmNo.addEventListener('click', () => { confirmBox.style.display = 'none'; });
-  confirmYes.addEventListener('click', () => { confirmBox.style.display = 'none'; sendNote(false); });
 
   // Status
   const statusEl = document.createElement('div');
@@ -519,11 +475,10 @@
   // Action btns
   const actionBtns = document.createElement('div');
   actionBtns.style.cssText = 'display:none;flex-direction:column;gap:6px;';
-  const btnCopy    = btn('📋 Copiar texto', { background: '#fff', color: '#374151', border: '1px solid #d1d5db' });
-  const btnPrivate = btn('🔒 Enviar nota privada', { background: '#fff', color: '#374151', border: '1px solid #d1d5db' });
-  const btnPublic  = btn('👁 Enviar ao cliente (nota pública)', { background: '#fff', color: '#dc2626', border: '1px solid #fca5a5' });
+  const btnCopy    = btn('📋 Copiar texto', { background: '#1F93FF', color: '#fff' });
+  const btnFormatAI = btn('✨ Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
   const btnReset   = btn('↺ Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
-  [btnCopy, btnPrivate, btnPublic, btnReset].forEach(b => actionBtns.appendChild(b));
+  [btnCopy, btnFormatAI, btnReset].forEach(b => actionBtns.appendChild(b));
   ftr.appendChild(actionBtns);
 
   // ─── Lógica ───────────────────────────────────────────────────────────────
@@ -629,6 +584,42 @@
     clearStatus();
   });
 
+  btnFormatAI.addEventListener('click', async () => {
+    const txt = activeTab === 'tec' ? resumoTec : resumoCli;
+    if (!txt) return;
+    btnFormatAI.textContent = '⏳ Formatando...';
+    btnFormatAI.disabled = true;
+    try {
+      const prompt = activeTab === 'tec'
+        ? `Você é um técnico sênior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional, coeso e claro. Mantenha os mesmos procedimentos, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos), mantenha a numeração e a frase final. Não invente informações.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reformulado.`
+        : `Você é um assistente de comunicação. Reescreva o resumo abaixo em linguagem simples e amigável para o dono do restaurante, mantendo os marcadores • e a frase final. Não use termos técnicos.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reescrito.`;
+      const r = await new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: WORKER_URL,
+          headers: { 'Content-Type': 'application/json', 'X-Nexos-Key': NEXOS_KEY },
+          data: JSON.stringify({ prompt }),
+          onload: resolve,
+          onerror: reject,
+        });
+      });
+      const j = JSON.parse(r.responseText);
+      if (j.text) {
+        if (activeTab === 'tec') resumoTec = j.text;
+        else resumoCli = j.text;
+        preview.textContent = j.text;
+        preview.style.display = 'block';
+        showStatus('✓ Formatado com IA!', 'ok');
+      } else {
+        showStatus('Erro ao formatar. Tente novamente.', 'err');
+      }
+    } catch(e) {
+      showStatus('Erro ao conectar com a IA.', 'err');
+    }
+    btnFormatAI.textContent = '✨ Formatar com IA';
+    btnFormatAI.disabled = false;
+  });
+
   btnCopy.addEventListener('click', () => {
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     navigator.clipboard.writeText(txt)
@@ -642,31 +633,6 @@
       });
   });
 
-  btnPrivate.addEventListener('click', () => sendNote(true));
-  btnPublic.addEventListener('click', () => { confirmBox.style.display = 'flex'; clearStatus(); });
-
-  function sendNote(isPrivate) {
-    const token = GM_getValue('nexos_token', '').trim();
-    if (!token) { showStatus('Configure o token do Chatwoot primeiro.', 'err'); return; }
-    const ids = getIdsFromUrl();
-    if (!ids) { showStatus('Não foi possível identificar a conversa.', 'err'); return; }
-    const content = isPrivate ? resumoTec : resumoCli;
-    btnPrivate.disabled = true; btnPublic.disabled = true;
-    showStatus('Enviando...', '');
-    GM_xmlhttpRequest({
-      method: 'POST',
-      url: `https://app.chatwoot.com/api/v1/accounts/${ids.accountId}/conversations/${ids.conversationId}/messages`,
-      headers: { 'Content-Type': 'application/json', 'api_access_token': token },
-      data: JSON.stringify({ content, message_type: 'outgoing', private: isPrivate }),
-      onload: r => {
-        btnPrivate.disabled = false; btnPublic.disabled = false;
-        showStatus(r.status >= 200 && r.status < 300
-          ? (isPrivate ? '✓ Nota privada enviada!' : '✓ Nota pública enviada ao cliente!')
-          : 'Erro ao enviar. Verifique o token.', r.status >= 200 && r.status < 300 ? 'ok' : 'err');
-      },
-      onerror: () => { btnPrivate.disabled = false; btnPublic.disabled = false; showStatus('Erro ao enviar.', 'err'); },
-    });
-  }
 
   btnReset.addEventListener('click', () => {
     selectedSteps = []; selectedDf = '';
@@ -674,6 +640,8 @@
     renderSteps(); renderDf(); resetResult();
     catsWrap.querySelectorAll('[data-content]').forEach(el => el.style.display = 'none');
     catsWrap.querySelectorAll('[data-arr]').forEach(el => el.textContent = '▸');
+    btnFormatAI.textContent = '✨ Formatar com IA';
+    btnFormatAI.disabled = false;
   });
 
   // ─── Botão flutuante ──────────────────────────────────────────────────────
