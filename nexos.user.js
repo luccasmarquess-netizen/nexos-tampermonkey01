@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      2.0.0
-// @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
+// @version      2.0.1
+// @description  Resumo de atendimento técnico direto no Chatwoot -- sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
 // @match        https://app.chatwoot.com/app/accounts/*/team/*/conversations/*
@@ -19,9 +19,9 @@
 (function () {
   'use strict';
 
-  // ─── Captura de mensagens do Chatwoot via DOM ───────────────────────────────
+  // --- Captura de mensagens do Chatwoot via DOM -------------------------------
   function capturarMensagensAgente() {
-    // Pega só mensagens de saída (agente) — ignora mensagens do cliente
+    // Pega só mensagens de saída (agente) -- ignora mensagens do cliente
     const msgs = [];
     // Seletores do Chatwoot para mensagens outgoing
     const selectors = [
@@ -70,7 +70,7 @@
       .replace(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{1,4}/g, '[CARTAO]');
   }
 
-  // ─── Tema ────────────────────────────────────────────────────────────────
+  // --- Tema ----------------------------------------------------------------
   const THEMES = {
     light: {
       bg:       '#ffffff',
@@ -195,7 +195,7 @@
     Object.assign(tabCli.style, tab === 'cli' ? on : off);
   }
 
-  // Chave interna — mesma que NEXOS_INTERNAL_KEY no Worker
+  // Chave interna -- mesma que NEXOS_INTERNAL_KEY no Worker
   const NEXOS_KEY = 'nexos-programaconsumer-2025';
   const WORKER_URL = 'https://nexos-tampermonkey.luccasmarquess.workers.dev';
 
@@ -204,7 +204,7 @@
     return m ? { accountId: m[1], conversationId: m[2] } : null;
   }
 
-  // ─── Dados ───────────────────────────────────────────────────────────────
+  // --- Dados ---------------------------------------------------------------
   const FAV = [
     'Acesso remoto estabelecido (RustDesk)',
     'Módulo Mobile instalado e validado',
@@ -235,63 +235,63 @@
   ];
 
   const DESFECHOS = [
-    { l: 'Resolvido',   bloco: '✅ DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
-    { l: 'Parcial',     bloco: '⚠️ DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
-    { l: 'Análise Q.A', bloco: '🔍 DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
-    { l: 'Ag. cliente', bloco: '⏳ DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
+    { l: 'Resolvido',   bloco: '[ok] DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
+    { l: 'Parcial',     bloco: '[!] DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
+    { l: 'Análise Q.A', bloco: '[qa] DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
+    { l: 'Ag. cliente', bloco: '[wait] DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
   ];
 
   const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento.';
 
   const TRADUCOES = [
-    [/acesso remoto estabelecido/i,              '• Realizamos o atendimento de forma remota'],
-    [/atualização do consumer executada/i,        '• Atualizamos o sistema para a versão mais recente'],
-    [/consumer reiniciado/i,                      '• Reiniciamos o sistema'],
-    [/reinstalação do consumer realizada/i,       '• Reinstalamos o sistema completo'],
-    [/backup realizado/i,                         '• Realizamos uma cópia de segurança dos dados'],
-    [/bloqueio de antivírus.*verificado/i,        '• Verificamos as permissões de segurança do computador'],
-    [/ip fixo.*configurado/i,                     '• Configuramos o endereço de rede do servidor'],
-    [/vpn.*configurada/i,                         '• Configuramos a conexão entre os computadores da loja'],
-    [/reconexão entre pc servidor/i,              '• Restabelecemos a comunicação entre os computadores da loja'],
-    [/impressora instalada e configurada/i,       '• Instalamos e configuramos a impressora no sistema'],
-    [/driver da impressora reinstalado/i,         '• Reinstalamos o driver da impressora'],
-    [/teste de impressão realizado.*positivo/i,   '• Testamos a impressão com resultado positivo'],
-    [/gaveta de dinheiro verificada/i,            '• Verificamos o funcionamento da gaveta de dinheiro'],
-    [/balança instalada e configurada/i,          '• Instalamos e configuramos a balança no sistema'],
-    [/emissor fiscal.*configurado/i,              '• Corrigimos o sistema de emissão de cupons fiscais'],
-    [/módulo fiscal verificado/i,                 '• Verificamos o módulo de emissão de notas fiscais'],
-    [/certificado digital verificado\/atualizado/i,'• Atualizamos o certificado digital do estabelecimento'],
-    [/rejeição de cupom fiscal.*corrigida/i,      '• Identificamos e corrigimos a rejeição de cupons fiscais'],
-    [/validação e testes de emissão fiscal/i,     '• Realizamos testes de emissão fiscal com resultado positivo'],
-    [/emissão de cupom fiscal em lote/i,          '• Emitimos os cupons fiscais pendentes em lote'],
-    [/arquivos xml exportados/i,                  '• Exportamos os arquivos fiscais para o contador'],
-    [/cancelamento de nfc-e/i,                    '• Realizamos o cancelamento das notas fiscais solicitadas'],
-    [/integração ifood verificada/i,              '• Verificamos o recebimento de pedidos pelo iFood'],
-    [/integração 99food verificada/i,             '• Verificamos o recebimento de pedidos pelo 99Food'],
-    [/integração keeta verificada/i,              '• Verificamos o recebimento de pedidos pelo Keeta'],
-    [/bot whatsapp.*validado/i,                   '• Configuramos e testamos o Bot do WhatsApp'],
-    [/bot whatsapp verificado/i,                  '• Verificamos o funcionamento do Bot do WhatsApp'],
-    [/app do entregador verificado/i,             '• Verificamos o funcionamento do App do Entregador'],
-    [/monitor de preparo verificado/i,            '• Verificamos o funcionamento do Monitor de Preparo'],
-    [/recebimento via pix configurado/i,          '• Configuramos o recebimento de pagamentos via PIX'],
-    [/totem verificado/i,                         '• Verificamos e configuramos o totem de autoatendimento'],
-    [/módulo mobile instalado/i,                  '• Instalamos e validamos o módulo de atendimento pelo celular'],
-    [/máquina tef verificada/i,                   '• Verificamos e integramos a maquininha de cartão'],
-    [/integração via api do parceiro/i,           '• Configuramos a integração com o sistema do parceiro'],
-    [/menudino configurado/i,                     '• Configuramos e validamos o cardápio online'],
-    [/chave google maps configurada/i,            '• Configuramos a integração com o mapa para entregas'],
-    [/firebird.*reinstalado.*zero/i,              '• Reinstalamos o banco de dados do sistema do zero'],
-    [/firebird padrão reinstalado/i,              '• Restauramos o banco de dados do sistema'],
-    [/firebird exclusivo removido/i,              '• Removemos a versão exclusiva do banco de dados'],
-    [/serviço do firebird reiniciado/i,           '• Reiniciamos o serviço de banco de dados'],
-    [/comunicação do firebird.*validada/i,        '• Validamos a comunicação do banco de dados com o sistema'],
-    [/recuperação do banco de dados/i,            '• Recuperamos o banco de dados do sistema'],
-    [/responsável orientado quanto/i,             '• Orientamos o responsável sobre os procedimentos realizados'],
-    [/responsável orientado sobre.*impactos/i,    '• Orientamos o responsável sobre possíveis impactos e prevenção'],
-    [/manual do consumer indicado/i,              '• Indicamos o manual do sistema para consulta'],
-    [/consumer connect.*demonstrado/i,            '• Apresentamos o portal de relatórios online'],
-    [/crm verificado/i,                           '• Verificamos o CRM e repassamos orientações'],
-    [/cliente orientado.*visita/i,                '• Orientamos o cliente a solicitar suporte técnico presencial'],
+    [/acesso remoto estabelecido/i,              '* Realizamos o atendimento de forma remota'],
+    [/atualização do consumer executada/i,        '* Atualizamos o sistema para a versão mais recente'],
+    [/consumer reiniciado/i,                      '* Reiniciamos o sistema'],
+    [/reinstalação do consumer realizada/i,       '* Reinstalamos o sistema completo'],
+    [/backup realizado/i,                         '* Realizamos uma cópia de segurança dos dados'],
+    [/bloqueio de antivírus.*verificado/i,        '* Verificamos as permissões de segurança do computador'],
+    [/ip fixo.*configurado/i,                     '* Configuramos o endereço de rede do servidor'],
+    [/vpn.*configurada/i,                         '* Configuramos a conexão entre os computadores da loja'],
+    [/reconexão entre pc servidor/i,              '* Restabelecemos a comunicação entre os computadores da loja'],
+    [/impressora instalada e configurada/i,       '* Instalamos e configuramos a impressora no sistema'],
+    [/driver da impressora reinstalado/i,         '* Reinstalamos o driver da impressora'],
+    [/teste de impressão realizado.*positivo/i,   '* Testamos a impressão com resultado positivo'],
+    [/gaveta de dinheiro verificada/i,            '* Verificamos o funcionamento da gaveta de dinheiro'],
+    [/balança instalada e configurada/i,          '* Instalamos e configuramos a balança no sistema'],
+    [/emissor fiscal.*configurado/i,              '* Corrigimos o sistema de emissão de cupons fiscais'],
+    [/módulo fiscal verificado/i,                 '* Verificamos o módulo de emissão de notas fiscais'],
+    [/certificado digital verificado\/atualizado/i,'* Atualizamos o certificado digital do estabelecimento'],
+    [/rejeição de cupom fiscal.*corrigida/i,      '* Identificamos e corrigimos a rejeição de cupons fiscais'],
+    [/validação e testes de emissão fiscal/i,     '* Realizamos testes de emissão fiscal com resultado positivo'],
+    [/emissão de cupom fiscal em lote/i,          '* Emitimos os cupons fiscais pendentes em lote'],
+    [/arquivos xml exportados/i,                  '* Exportamos os arquivos fiscais para o contador'],
+    [/cancelamento de nfc-e/i,                    '* Realizamos o cancelamento das notas fiscais solicitadas'],
+    [/integração ifood verificada/i,              '* Verificamos o recebimento de pedidos pelo iFood'],
+    [/integração 99food verificada/i,             '* Verificamos o recebimento de pedidos pelo 99Food'],
+    [/integração keeta verificada/i,              '* Verificamos o recebimento de pedidos pelo Keeta'],
+    [/bot whatsapp.*validado/i,                   '* Configuramos e testamos o Bot do WhatsApp'],
+    [/bot whatsapp verificado/i,                  '* Verificamos o funcionamento do Bot do WhatsApp'],
+    [/app do entregador verificado/i,             '* Verificamos o funcionamento do App do Entregador'],
+    [/monitor de preparo verificado/i,            '* Verificamos o funcionamento do Monitor de Preparo'],
+    [/recebimento via pix configurado/i,          '* Configuramos o recebimento de pagamentos via PIX'],
+    [/totem verificado/i,                         '* Verificamos e configuramos o totem de autoatendimento'],
+    [/módulo mobile instalado/i,                  '* Instalamos e validamos o módulo de atendimento pelo celular'],
+    [/máquina tef verificada/i,                   '* Verificamos e integramos a maquininha de cartão'],
+    [/integração via api do parceiro/i,           '* Configuramos a integração com o sistema do parceiro'],
+    [/menudino configurado/i,                     '* Configuramos e validamos o cardápio online'],
+    [/chave google maps configurada/i,            '* Configuramos a integração com o mapa para entregas'],
+    [/firebird.*reinstalado.*zero/i,              '* Reinstalamos o banco de dados do sistema do zero'],
+    [/firebird padrão reinstalado/i,              '* Restauramos o banco de dados do sistema'],
+    [/firebird exclusivo removido/i,              '* Removemos a versão exclusiva do banco de dados'],
+    [/serviço do firebird reiniciado/i,           '* Reiniciamos o serviço de banco de dados'],
+    [/comunicação do firebird.*validada/i,        '* Validamos a comunicação do banco de dados com o sistema'],
+    [/recuperação do banco de dados/i,            '* Recuperamos o banco de dados do sistema'],
+    [/responsável orientado quanto/i,             '* Orientamos o responsável sobre os procedimentos realizados'],
+    [/responsável orientado sobre.*impactos/i,    '* Orientamos o responsável sobre possíveis impactos e prevenção'],
+    [/manual do consumer indicado/i,              '* Indicamos o manual do sistema para consulta'],
+    [/consumer connect.*demonstrado/i,            '* Apresentamos o portal de relatórios online'],
+    [/crm verificado/i,                           '* Verificamos o CRM e repassamos orientações'],
+    [/cliente orientado.*visita/i,                '* Orientamos o cliente a solicitar suporte técnico presencial'],
   ];
 
   function buildTec(steps, df, obs) {
@@ -310,8 +310,8 @@
         if (re.test(step) && !itens.includes(texto)) { itens.push(texto); break; }
       }
     }
-    if (!itens.length) itens.push('• Realizamos os procedimentos necessários para resolver o problema');
-    if (obs) itens.push('• ' + obs);
+    if (!itens.length) itens.push('* Realizamos os procedimentos necessários para resolver o problema');
+    if (obs) itens.push('* ' + obs);
     const dm = {
       'Resolvido':   '\nO problema foi resolvido durante este atendimento.',
       'Parcial':     '\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
@@ -325,7 +325,7 @@
     return txt;
   }
 
-  // ─── Estado ──────────────────────────────────────────────────────────────
+  // --- Estado --------------------------------------------------------------
   let selectedSteps = [];
   let selectedDf = '';
   let activeTab = 'tec';
@@ -333,7 +333,7 @@
   let resumoCli = '';
   let showConfirm = false;
 
-  // ─── Overlay + Modal (injetados no document.documentElement) ─────────────
+  // --- Overlay + Modal (injetados no document.documentElement) -------------
   const overlay = document.createElement('div');
   Object.assign(overlay.style, {
     position: 'fixed', inset: '0',
@@ -365,9 +365,9 @@
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '14px 18px', background: '#1F93FF', color: '#fff', flexShrink: '0',
   });
-  hdr.innerHTML = '<span style="font-size:15px;font-weight:700;">🔗 Nexos</span>';
+  hdr.innerHTML = '<span style="font-size:15px;font-weight:700;">[nexos] Nexos</span>';
   const closeBtn = document.createElement('button');
-  closeBtn.textContent = '×';
+  closeBtn.textContent = 'x';
   Object.assign(closeBtn.style, {
     background: 'none', border: 'none', color: '#fff',
     fontSize: '22px', cursor: 'pointer', lineHeight: '1', padding: '0 4px',
@@ -399,7 +399,7 @@
   overlay.appendChild(modal);
   document.documentElement.appendChild(overlay);
 
-  // ─── Helpers de estilo ────────────────────────────────────────────────────
+  // --- Helpers de estilo ----------------------------------------------------
   function sec(title) {
     const wrap = document.createElement('div');
     wrap.dataset.secWrap = '1';
@@ -475,22 +475,22 @@
     b.style.borderColor = sel ? '#1F93FF' : '#e5e7eb';
     b.style.color = sel ? '#1F93FF' : '#374151';
     const chk = b.querySelector('span');
-    chk.textContent = sel ? '✓' : '';
+    chk.textContent = sel ? '[ok]' : '';
     chk.style.background = sel ? '#1F93FF' : '#fff';
     chk.style.borderColor = sel ? '#1F93FF' : '#d1d5db';
     chk.style.color = '#fff';
   }
 
 
-  // ─── Seção Resumir conversa ──────────────────────────────────────────────────
-  const convSec = sec('💬 Resumir conversa atual (IA)  ▸');
+  // --- Seção Resumir conversa --------------------------------------------------
+  const convSec = sec('[msg] Resumir conversa atual (IA)  >');
   convSec.body.style.display = 'none';
   convSec.title.style.cursor = 'pointer';
   convSec.title.addEventListener('click', () => {
     const open = convSec.body.style.display !== 'none';
     convSec.body.style.display = open ? 'none' : 'block';
     const t = convSec.title;
-    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+    t.textContent = t.textContent.replace(open ? 'v' : '>', open ? '>' : 'v');
   });
 
   const convSecHint = document.createElement('div');
@@ -518,7 +518,7 @@
   convBtnRow.style.cssText = 'display:flex;gap:6px;';
 
   const convBtnPreview = document.createElement('button');
-  convBtnPreview.textContent = '👁 Ver o que será enviado';
+  convBtnPreview.textContent = '[ver] Ver o que será enviado';
   Object.assign(convBtnPreview.style, {
     flex: '1', padding: '7px', borderRadius: '6px',
     border: '1px solid #d1d5db', background: '#fff',
@@ -527,7 +527,7 @@
   });
 
   const convBtnGerar = document.createElement('button');
-  convBtnGerar.textContent = '🤖 Gerar resumo';
+  convBtnGerar.textContent = '[IA] Gerar resumo';
   Object.assign(convBtnGerar.style, {
     flex: '1', padding: '7px', borderRadius: '6px',
     border: '1px solid #1F93FF', background: '#eff6ff',
@@ -544,7 +544,7 @@
   convBtnPreview.addEventListener('click', () => {
     const msgs = capturarMensagensAgente();
     if (!msgs.length) {
-      convStatusEl.textContent = '⚠️ Nenhuma mensagem do agente encontrada nesta conversa.';
+      convStatusEl.textContent = '[!] Nenhuma mensagem do agente encontrada nesta conversa.';
       convStatusEl.style.color = '#dc2626';
       convStatusEl.style.display = 'block';
       convPreviewBox.style.display = 'none';
@@ -555,7 +555,7 @@
 '));
     convPreviewBox.textContent = textoAnon;
     convPreviewBox.style.display = 'block';
-    convStatusEl.textContent = `✓ ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensíveis anonimizados.`;
+    convStatusEl.textContent = `[ok] ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensíveis anonimizados.`;
     convStatusEl.style.color = '#16a34a';
     convStatusEl.style.display = 'block';
   });
@@ -570,7 +570,7 @@
     const textoAnon = anonimizar(msgs.join('
 ---
 '));
-    convBtnGerar.textContent = '⏳ Gerando...';
+    convBtnGerar.textContent = '[wait] Gerando...';
     convBtnGerar.disabled = true;
     convBtnPreview.disabled = true;
     try {
@@ -608,23 +608,23 @@ Responda APENAS com o resumo numerado e a frase final.`;
         setTabStyles('tec');
         btnGerar.style.display = 'none';
         actionBtns.style.display = 'flex';
-        showStatus('✓ Resumo gerado a partir da conversa!', 'ok');
+        showStatus('[ok] Resumo gerado a partir da conversa!', 'ok');
         // Fechar a seção
         convSec.body.style.display = 'none';
-        convSec.title.textContent = convSec.title.textContent.replace('▾', '▸');
+        convSec.title.textContent = convSec.title.textContent.replace('v', '>');
       } else {
         showStatus('Erro ao gerar resumo. Tente novamente.', 'err');
       }
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    convBtnGerar.textContent = '🤖 Gerar resumo';
+    convBtnGerar.textContent = '[IA] Gerar resumo';
     convBtnGerar.disabled = false;
     convBtnPreview.disabled = false;
   });
 
-  // ─── Seção Passos ─────────────────────────────────────────────────────────
-  const stepsSec = sec('📋 Passos realizados');
+  // --- Seção Passos ---------------------------------------------------------
+  const stepsSec = sec('[copy] Passos realizados');
   const badge = document.createElement('span');
   Object.assign(badge.style, {
     background: '#1F93FF', color: '#fff', borderRadius: '99px',
@@ -638,7 +638,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   const favLabel = document.createElement('div');
   favLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;';
   favLabel.dataset.sublabel = '1';
-  favLabel.textContent = '⭐ Mais usados';
+  favLabel.textContent = '[fav] Mais usados';
   stepsSec.body.appendChild(favLabel);
 
   const favGrid = document.createElement('div');
@@ -649,7 +649,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   const catsLabel = document.createElement('div');
   catsLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
   catsLabel.dataset.sublabel = '1';
-  catsLabel.textContent = '📂 Outras ações';
+  catsLabel.textContent = '[cat] Outras ações';
   stepsSec.body.appendChild(catsLabel);
 
   const catsWrap = document.createElement('div');
@@ -664,7 +664,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
       alignItems: 'center', justifyContent: 'space-between',
     });
     const arr = document.createElement('span');
-    arr.textContent = '▸';
+    arr.textContent = '>';
     catBtn2.appendChild(document.createTextNode(cat.g));
     catBtn2.appendChild(arr);
 
@@ -676,8 +676,8 @@ Responda APENAS com o resumo numerado e a frase final.`;
     catBtn2.addEventListener('click', () => {
       const open = content.style.display !== 'none';
       catsWrap.querySelectorAll('[data-content]').forEach(el => { el.style.display = 'none'; });
-      catsWrap.querySelectorAll('[data-arr]').forEach(el => { el.textContent = '▸'; });
-      if (!open) { content.style.display = 'flex'; arr.textContent = '▾'; }
+      catsWrap.querySelectorAll('[data-arr]').forEach(el => { el.textContent = '>'; });
+      if (!open) { content.style.display = 'flex'; arr.textContent = 'v'; }
     });
 
     content.dataset.content = '1';
@@ -713,7 +713,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   const convLabel = document.createElement('div');
   convLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
   convLabel.dataset.sublabel = '1';
-  convLabel.textContent = '🤖 Extrair passos da conversa (IA)';
+  convLabel.textContent = '[IA] Extrair passos da conversa (IA)';
   stepsSec.body.appendChild(convLabel);
 
   const convHint = document.createElement('div');
@@ -730,7 +730,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   stepsSec.body.appendChild(convInp);
 
   const convBtn = document.createElement('button');
-  convBtn.textContent = '🤖 Extrair passos';
+  convBtn.textContent = '[IA] Extrair passos';
   Object.assign(convBtn.style, {
     marginTop: '6px', padding: '7px 12px', borderRadius: '6px',
     border: '1px solid #7c3aed', background: '#f5f3ff',
@@ -740,7 +740,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   convBtn.addEventListener('click', async () => {
     const conv = convInp.value.trim();
     if (!conv) { showStatus('Cole a conversa antes de extrair.', 'err'); return; }
-    convBtn.textContent = '⏳ Extraindo...';
+    convBtn.textContent = '[wait] Extraindo...';
     convBtn.disabled = true;
     try {
       const prompt = `Você é um técnico de suporte do sistema Consumer (PDV para restaurantes). Analise a conversa abaixo e liste APENAS os procedimentos técnicos que foram realizados durante o atendimento. Responda SOMENTE com uma lista JSON de strings, sem markdown, sem explicações. Exemplo: ["Acesso remoto estabelecido (RustDesk)", "Consumer reiniciado"]
@@ -767,7 +767,7 @@ Responda APENAS com o array JSON.`;
           passos.forEach(p => { if (p && !selectedSteps.includes(p)) selectedSteps.push(p); });
           renderSteps();
           convInp.value = '';
-          showStatus(`✓ ${passos.length} passo(s) extraído(s) e adicionado(s)!`, 'ok');
+          showStatus(`[ok] ${passos.length} passo(s) extraído(s) e adicionado(s)!`, 'ok');
         } else {
           showStatus('Nenhum procedimento identificado. Tente descrever mais a conversa.', 'err');
         }
@@ -777,22 +777,22 @@ Responda APENAS com o array JSON.`;
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    convBtn.textContent = '🤖 Extrair passos';
+    convBtn.textContent = '[IA] Extrair passos';
     convBtn.disabled = false;
   });
   stepsSec.body.appendChild(convBtn);
   body.appendChild(stepsSec.wrap);
 
-  // ─── Seção Selecionados ───────────────────────────────────────────────────
-  const selSec = sec('✅ Passos selecionados');
+  // --- Seção Selecionados ---------------------------------------------------
+  const selSec = sec('[ok] Passos selecionados');
   selSec.wrap.style.display = 'none';
   const selList = document.createElement('div');
   selList.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
   selSec.body.appendChild(selList);
   body.appendChild(selSec.wrap);
 
-  // ─── Seção Desfecho ───────────────────────────────────────────────────────
-  const dfSec = sec('🏁 Desfecho');
+  // --- Seção Desfecho -------------------------------------------------------
+  const dfSec = sec('[fim] Desfecho');
   const dfGrid = document.createElement('div');
   dfGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;';
   const dfCls = [
@@ -820,21 +820,21 @@ Responda APENAS com o array JSON.`;
   dfSec.body.appendChild(dfGrid);
   body.appendChild(dfSec.wrap);
 
-  // ─── Seção Mensagem de finalização (colapsável) ─────────────────────────────
-  const fimSec = sec('💬 Mensagem de finalização (para o cliente)  ▸');
+  // --- Seção Mensagem de finalização (colapsável) -----------------------------
+  const fimSec = sec('[msg] Mensagem de finalização (para o cliente)  >');
   fimSec.body.style.display = 'none';
   fimSec.title.style.cursor = 'pointer';
   fimSec.title.addEventListener('click', () => {
     const open = fimSec.body.style.display !== 'none';
     fimSec.body.style.display = open ? 'none' : 'block';
     const t = fimSec.title;
-    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+    t.textContent = t.textContent.replace(open ? 'v' : '>', open ? '>' : 'v');
   });
   const fimHint = document.createElement('div');
   fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
   fimHint.dataset.hint = '1';
   fimHint.textContent = 'Salva automaticamente. Aparece no final do resumo para o cliente.';
-  const fimInp = inp('Ex: Qualquer dúvida estou à disposição! Att, Luccas — Suporte Consumer', 'textarea');
+  const fimInp = inp('Ex: Qualquer dúvida estou à disposição! Att, Luccas -- Suporte Consumer', 'textarea');
   fimInp.rows = 3;
   fimInp.style.resize = 'vertical';
   fimInp.value = GM_getValue('nexos_fim', '');
@@ -843,15 +843,15 @@ Responda APENAS com o array JSON.`;
   fimSec.body.appendChild(fimInp);
   body.appendChild(fimSec.wrap);
 
-  // ─── Seção Observação (colapsável) ───────────────────────────────────────
-  const obsSec = sec('📝 Observação adicional (opcional)  ▸');
+  // --- Seção Observação (colapsável) ---------------------------------------
+  const obsSec = sec('[obs] Observação adicional (opcional)  >');
   obsSec.body.style.display = 'none';
   obsSec.title.style.cursor = 'pointer';
   obsSec.title.addEventListener('click', () => {
     const open = obsSec.body.style.display !== 'none';
     obsSec.body.style.display = open ? 'none' : 'block';
     const t = obsSec.title;
-    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+    t.textContent = t.textContent.replace(open ? 'v' : '>', open ? '>' : 'v');
   });
   const obsInp = inp('Ex: cliente orientado sobre certificado digital', 'textarea');
   obsInp.rows = 2;
@@ -859,7 +859,7 @@ Responda APENAS com o array JSON.`;
   obsSec.body.appendChild(obsInp);
   body.appendChild(obsSec.wrap);
 
-  // ─── Footer ───────────────────────────────────────────────────────────────
+  // --- Footer ---------------------------------------------------------------
   // Tabs
   const tabBar = document.createElement('div');
   tabBar.style.cssText = 'display:flex;gap:4px;';
@@ -907,14 +907,14 @@ Responda APENAS com o array JSON.`;
   // Action btns
   const actionBtns = document.createElement('div');
   actionBtns.style.cssText = 'display:none;flex-direction:column;gap:6px;';
-  const btnCopy    = btn('📋 Copiar texto', { background: '#1F93FF', color: '#fff' });
-  const btnFormatAI = btn('✨ Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
-  const btnReset   = btn('↺ Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
+  const btnCopy    = btn('[copy] Copiar texto', { background: '#1F93FF', color: '#fff' });
+  const btnFormatAI = btn('[ai] Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
+  const btnReset   = btn('<- Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
   [btnCopy, btnFormatAI].forEach(b => actionBtns.appendChild(b));
   ftr.appendChild(actionBtns);
   ftr.appendChild(btnReset);
 
-  // ─── Lógica ───────────────────────────────────────────────────────────────
+  // --- Lógica ---------------------------------------------------------------
   function toggleStep(label) {
     selectedSteps = selectedSteps.includes(label)
       ? selectedSteps.filter(s => s !== label)
@@ -939,11 +939,11 @@ Responda APENAS com o array JSON.`;
       item.draggable = true;
       item.dataset.idx = i;
       const drag = document.createElement('span');
-      drag.textContent = '⠿'; drag.style.cssText = 'cursor:grab;color:#93c5fd;flex-shrink:0;';
+      drag.textContent = '::'; drag.style.cssText = 'cursor:grab;color:#93c5fd;flex-shrink:0;';
       const txt = document.createElement('span');
       txt.textContent = s; txt.style.flex = '1';
       const rm = document.createElement('button');
-      rm.textContent = '×';
+      rm.textContent = 'x';
       Object.assign(rm.style, { marginLeft: 'auto', background: 'none', border: 'none', color: '#93c5fd', cursor: 'pointer', fontSize: '16px' });
       rm.addEventListener('click', () => toggleStep(s));
       item.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', i));
@@ -1018,12 +1018,12 @@ Responda APENAS com o array JSON.`;
   btnFormatAI.addEventListener('click', async () => {
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) return;
-    btnFormatAI.textContent = '⏳ Formatando...';
+    btnFormatAI.textContent = '[wait] Formatando...';
     btnFormatAI.disabled = true;
     try {
       const prompt = activeTab === 'tec'
         ? `Você é um técnico sênior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional, coeso e claro. Mantenha os mesmos procedimentos, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos), mantenha a numeração e a frase final. Não invente informações.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reformulado.`
-        : `Você é um assistente de comunicação. Reescreva o resumo abaixo em linguagem simples e amigável para o dono do restaurante, mantendo os marcadores • e a frase final. Não use termos técnicos.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reescrito.`;
+        : `Você é um assistente de comunicação. Reescreva o resumo abaixo em linguagem simples e amigável para o dono do restaurante, mantendo os marcadores * e a frase final. Não use termos técnicos.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reescrito.`;
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'POST',
@@ -1040,14 +1040,14 @@ Responda APENAS com o array JSON.`;
         else resumoCli = j.text;
         preview.textContent = j.text;
         preview.style.display = 'block';
-        showStatus('✓ Formatado com IA!', 'ok');
+        showStatus('[ok] Formatado com IA!', 'ok');
       } else {
         showStatus('Erro ao formatar. Tente novamente.', 'err');
       }
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    btnFormatAI.textContent = '✨ Formatar com IA';
+    btnFormatAI.textContent = '[ai] Formatar com IA';
     btnFormatAI.disabled = false;
   });
 
@@ -1088,13 +1088,13 @@ Responda APENAS com o array JSON.`;
   }
 
   btnCopy.addEventListener('click', () => {
-    // Lê diretamente da variável — não depende do DOM
+    // Lê diretamente da variável -- não depende do DOM
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
     copyText(txt).then(() => {
-      showStatus('✓ Copiado!', 'ok');
-      btnCopy.textContent = '✓ Copiado!';
-      setTimeout(() => { btnCopy.textContent = '📋 Copiar texto'; }, 2000);
+      showStatus('[ok] Copiado!', 'ok');
+      btnCopy.textContent = '[ok] Copiado!';
+      setTimeout(() => { btnCopy.textContent = '[copy] Copiar texto'; }, 2000);
     }).catch(() => {
       showStatus('Erro ao copiar. Tente Ctrl+C no texto acima.', 'err');
     });
@@ -1106,12 +1106,12 @@ Responda APENAS com o array JSON.`;
     obsInp.value = ''; customInp.value = '';
     renderSteps(); renderDf(); resetResult();
     catsWrap.querySelectorAll('[data-content]').forEach(el => el.style.display = 'none');
-    catsWrap.querySelectorAll('[data-arr]').forEach(el => el.textContent = '▸');
-    btnFormatAI.textContent = '✨ Formatar com IA';
+    catsWrap.querySelectorAll('[data-arr]').forEach(el => el.textContent = '>');
+    btnFormatAI.textContent = '[ai] Formatar com IA';
     btnFormatAI.disabled = false;
   });
 
-  // ─── Botão flutuante ──────────────────────────────────────────────────────
+  // --- Botão flutuante ------------------------------------------------------
   const toggleBtn = document.createElement('button');
   toggleBtn.textContent = 'NEXOS';
   Object.assign(toggleBtn.style, {
