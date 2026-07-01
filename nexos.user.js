@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.8.0
+// @version      1.9.1
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -11,7 +11,6 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
-// @grant        GM_setClipboard
 // @connect      app.chatwoot.com
 // @updateURL    https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
 // @downloadURL  https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
@@ -298,9 +297,9 @@
   Object.assign(modal.style, {
     background: '#fff',
     borderRadius: '12px',
-    width: '680px',
-    maxWidth: '98vw',
-    maxHeight: '95vh',
+    width: '560px',
+    maxWidth: '90vw',
+    maxHeight: '85vh',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
@@ -702,8 +701,9 @@ Responda APENAS com o array JSON.`;
   const btnCopy    = btn('📋 Copiar texto', { background: '#1F93FF', color: '#fff' });
   const btnFormatAI = btn('✨ Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
   const btnReset   = btn('↺ Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
-  [btnCopy, btnFormatAI, btnReset].forEach(b => actionBtns.appendChild(b));
+  [btnCopy, btnFormatAI].forEach(b => actionBtns.appendChild(b));
   ftr.appendChild(actionBtns);
+  ftr.appendChild(btnReset);
 
   // ─── Lógica ───────────────────────────────────────────────────────────────
   function toggleStep(label) {
@@ -845,8 +845,34 @@ Responda APENAS com o array JSON.`;
   btnCopy.addEventListener('click', () => {
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
-    GM_setClipboard(txt, 'text');
-    showStatus('✓ Copiado!', 'ok');
+    // Cria textarea dentro do modal para evitar bloqueio do Chatwoot
+    const ta = document.createElement('textarea');
+    ta.value = txt;
+    Object.assign(ta.style, {
+      position: 'absolute', top: '0', left: '0',
+      width: '1px', height: '1px', opacity: '0',
+      zIndex: '-1', pointerEvents: 'none',
+    });
+    modal.appendChild(ta);
+    ta.focus();
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) {}
+    modal.removeChild(ta);
+    if (ok) {
+      showStatus('✓ Copiado!', 'ok');
+      btnCopy.textContent = '✓ Copiado!';
+      setTimeout(() => { btnCopy.textContent = '📋 Copiar texto'; }, 2000);
+    } else {
+      // Fallback: mostra o texto selecionável para copiar manualmente
+      showStatus('Ctrl+C para copiar o texto selecionado no preview.', 'err');
+      preview.focus();
+      const range = document.createRange();
+      range.selectNodeContents(preview);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
   });
 
 
