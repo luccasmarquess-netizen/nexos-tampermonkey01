@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.7.0
+// @version      1.8.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -516,6 +516,79 @@
   }
   customRow.appendChild(customInp); customRow.appendChild(customAddBtn);
   stepsSec.body.appendChild(customRow);
+
+  // Campo para colar conversa e extrair passos via IA
+  const convLabel = document.createElement('div');
+  convLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
+  convLabel.dataset.sublabel = '1';
+  convLabel.textContent = '🤖 Extrair passos da conversa (IA)';
+  stepsSec.body.appendChild(convLabel);
+
+  const convHint = document.createElement('div');
+  convHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
+  convHint.dataset.hint = '1';
+  convHint.textContent = 'Cole a conversa com o cliente. A IA identifica os procedimentos realizados e adiciona aos passos.';
+  stepsSec.body.appendChild(convHint);
+
+  const convInp = document.createElement('textarea');
+  convInp.dataset.inp = '1';
+  convInp.placeholder = 'Cole aqui a conversa com o cliente...';
+  convInp.rows = 4;
+  convInp.style.cssText = 'width:100%;padding:7px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#111;font-family:inherit;outline:none;box-sizing:border-box;resize:vertical;';
+  stepsSec.body.appendChild(convInp);
+
+  const convBtn = document.createElement('button');
+  convBtn.textContent = '🤖 Extrair passos';
+  Object.assign(convBtn.style, {
+    marginTop: '6px', padding: '7px 12px', borderRadius: '6px',
+    border: '1px solid #7c3aed', background: '#f5f3ff',
+    color: '#7c3aed', fontSize: '12px', fontWeight: '600',
+    cursor: 'pointer', width: '100%', fontFamily: 'inherit',
+  });
+  convBtn.addEventListener('click', async () => {
+    const conv = convInp.value.trim();
+    if (!conv) { showStatus('Cole a conversa antes de extrair.', 'err'); return; }
+    convBtn.textContent = '⏳ Extraindo...';
+    convBtn.disabled = true;
+    try {
+      const prompt = `Você é um técnico de suporte do sistema Consumer (PDV para restaurantes). Analise a conversa abaixo e liste APENAS os procedimentos técnicos que foram realizados durante o atendimento. Responda SOMENTE com uma lista JSON de strings, sem markdown, sem explicações. Exemplo: ["Acesso remoto estabelecido (RustDesk)", "Consumer reiniciado"]
+
+CONVERSA:
+${conv}
+
+Responda APENAS com o array JSON.`;
+      const r = await new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: WORKER_URL,
+          headers: { 'Content-Type': 'application/json', 'X-Nexos-Key': NEXOS_KEY },
+          data: JSON.stringify({ prompt }),
+          onload: resolve,
+          onerror: reject,
+        });
+      });
+      const j = JSON.parse(r.responseText);
+      if (j.text) {
+        const raw = j.text.replace(/```json|```/g, '').trim();
+        const passos = JSON.parse(raw);
+        if (Array.isArray(passos) && passos.length) {
+          passos.forEach(p => { if (p && !selectedSteps.includes(p)) selectedSteps.push(p); });
+          renderSteps();
+          convInp.value = '';
+          showStatus(`✓ ${passos.length} passo(s) extraído(s) e adicionado(s)!`, 'ok');
+        } else {
+          showStatus('Nenhum procedimento identificado. Tente descrever mais a conversa.', 'err');
+        }
+      } else {
+        showStatus('Erro ao extrair. Tente novamente.', 'err');
+      }
+    } catch(e) {
+      showStatus('Erro ao conectar com a IA.', 'err');
+    }
+    convBtn.textContent = '🤖 Extrair passos';
+    convBtn.disabled = false;
+  });
+  stepsSec.body.appendChild(convBtn);
   body.appendChild(stepsSec.wrap);
 
   // ─── Seção Selecionados ───────────────────────────────────────────────────
@@ -607,8 +680,9 @@
   Object.assign(preview.style, {
     background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '7px',
     padding: '10px', fontSize: '12px', lineHeight: '1.7',
-    whiteSpace: 'pre-wrap', color: '#111', maxHeight: '160px',
-    overflowY: 'auto', display: 'none',
+    whiteSpace: 'pre-wrap', color: '#111',
+    height: '120px', maxHeight: '120px', minHeight: '120px',
+    overflowY: 'scroll', display: 'none', flexShrink: '0',
   });
   ftr.appendChild(preview);
 
