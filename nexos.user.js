@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.9.4
+// @version      2.0.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -18,6 +18,57 @@
 
 (function () {
   'use strict';
+
+  // ─── Captura de mensagens do Chatwoot via DOM ───────────────────────────────
+  function capturarMensagensAgente() {
+    // Pega só mensagens de saída (agente) — ignora mensagens do cliente
+    const msgs = [];
+    // Seletores do Chatwoot para mensagens outgoing
+    const selectors = [
+      '.conversation-view .outgoing-message .message-text__content',
+      '.conversation-view [class*="outgoing"] [class*="content"]',
+      '.view-box .outgoing .message-content',
+      '.messages-list .right .message-text',
+    ];
+    for (const sel of selectors) {
+      const els = document.querySelectorAll(sel);
+      if (els.length > 0) {
+        els.forEach(el => {
+          const txt = el.innerText?.trim();
+          if (txt && txt.length > 3) msgs.push(txt);
+        });
+        break;
+      }
+    }
+    // Fallback: tenta pegar pelo atributo data
+    if (msgs.length === 0) {
+      document.querySelectorAll('[data-key*="message"]').forEach(el => {
+        if (el.closest('[class*="outgoing"], [class*="right"]')) {
+          const txt = el.innerText?.trim();
+          if (txt && txt.length > 3) msgs.push(txt);
+        }
+      });
+    }
+    return msgs;
+  }
+
+  function anonimizar(texto) {
+    return texto
+      // Telefones: (11) 99999-9999, 11999999999, +55 11 99999-9999
+      .replace(/(\+?55\s?)?(\(?\d{2}\)?\s?)(\d{4,5}[-\s]?\d{4})/g, '[TELEFONE]')
+      // CPF: 000.000.000-00
+      .replace(/\d{3}\.?\d{3}\.?\d{3}-?\d{2}/g, '[CPF]')
+      // CNPJ: 00.000.000/0000-00
+      .replace(/\d{2}\.?\d{3}\.?\d{3}\/?0001-?\d{2}/g, '[CNPJ]')
+      // E-mails
+      .replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, '[EMAIL]')
+      // CEP: 00000-000
+      .replace(/\d{5}-?\d{3}/g, '[CEP]')
+      // Chaves PIX (UUID)
+      .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, '[CHAVE-PIX]')
+      // Números de cartão (sequências de 13-19 dígitos)
+      .replace(/\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{1,4}/g, '[CARTAO]');
+  }
 
   // ─── Tema ────────────────────────────────────────────────────────────────
   const THEMES = {
@@ -430,6 +481,147 @@
     chk.style.color = '#fff';
   }
 
+
+  // ─── Seção Resumir conversa ──────────────────────────────────────────────────
+  const convSec = sec('💬 Resumir conversa atual (IA)  ▸');
+  convSec.body.style.display = 'none';
+  convSec.title.style.cursor = 'pointer';
+  convSec.title.addEventListener('click', () => {
+    const open = convSec.body.style.display !== 'none';
+    convSec.body.style.display = open ? 'none' : 'block';
+    const t = convSec.title;
+    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+  });
+
+  const convSecHint = document.createElement('div');
+  convSecHint.dataset.hint = '1';
+  convSecHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:8px;line-height:1.5;';
+  convSecHint.textContent = 'Captura apenas as mensagens enviadas pelo agente. Dados sensíveis (telefone, CPF, CNPJ, e-mail) são removidos antes do envio para a IA.';
+  convSec.body.appendChild(convSecHint);
+
+  // Preview do que vai ser enviado
+  const convPreviewBox = document.createElement('div');
+  Object.assign(convPreviewBox.style, {
+    background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '6px',
+    padding: '8px', fontSize: '11px', lineHeight: '1.6',
+    whiteSpace: 'pre-wrap', color: '#374151',
+    maxHeight: '100px', overflowY: 'auto', display: 'none',
+    marginBottom: '8px',
+  });
+  convSec.body.appendChild(convPreviewBox);
+
+  const convStatusEl = document.createElement('div');
+  convStatusEl.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;display:none;';
+  convSec.body.appendChild(convStatusEl);
+
+  const convBtnRow = document.createElement('div');
+  convBtnRow.style.cssText = 'display:flex;gap:6px;';
+
+  const convBtnPreview = document.createElement('button');
+  convBtnPreview.textContent = '👁 Ver o que será enviado';
+  Object.assign(convBtnPreview.style, {
+    flex: '1', padding: '7px', borderRadius: '6px',
+    border: '1px solid #d1d5db', background: '#fff',
+    color: '#374151', fontSize: '12px', fontWeight: '500',
+    cursor: 'pointer', fontFamily: 'inherit',
+  });
+
+  const convBtnGerar = document.createElement('button');
+  convBtnGerar.textContent = '🤖 Gerar resumo';
+  Object.assign(convBtnGerar.style, {
+    flex: '1', padding: '7px', borderRadius: '6px',
+    border: '1px solid #1F93FF', background: '#eff6ff',
+    color: '#1F93FF', fontSize: '12px', fontWeight: '600',
+    cursor: 'pointer', fontFamily: 'inherit',
+  });
+
+  convBtnRow.appendChild(convBtnPreview);
+  convBtnRow.appendChild(convBtnGerar);
+  convSec.body.appendChild(convBtnRow);
+  body.appendChild(convSec.wrap);
+
+  // Lógica do preview
+  convBtnPreview.addEventListener('click', () => {
+    const msgs = capturarMensagensAgente();
+    if (!msgs.length) {
+      convStatusEl.textContent = '⚠️ Nenhuma mensagem do agente encontrada nesta conversa.';
+      convStatusEl.style.color = '#dc2626';
+      convStatusEl.style.display = 'block';
+      convPreviewBox.style.display = 'none';
+      return;
+    }
+    const textoAnon = anonimizar(msgs.join('
+---
+'));
+    convPreviewBox.textContent = textoAnon;
+    convPreviewBox.style.display = 'block';
+    convStatusEl.textContent = `✓ ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensíveis anonimizados.`;
+    convStatusEl.style.color = '#16a34a';
+    convStatusEl.style.display = 'block';
+  });
+
+  // Lógica de geração
+  convBtnGerar.addEventListener('click', async () => {
+    const msgs = capturarMensagensAgente();
+    if (!msgs.length) {
+      showStatus('Nenhuma mensagem do agente encontrada.', 'err');
+      return;
+    }
+    const textoAnon = anonimizar(msgs.join('
+---
+'));
+    convBtnGerar.textContent = '⏳ Gerando...';
+    convBtnGerar.disabled = true;
+    convBtnPreview.disabled = true;
+    try {
+      const prompt = `Você é um técnico sênior de suporte do sistema Consumer (PDV/ERP para restaurantes). Analise as mensagens abaixo enviadas pelo agente de suporte durante um atendimento e gere um resumo técnico profissional dos procedimentos realizados.
+
+REGRAS:
+- Itens numerados (1. 2. 3...) na ordem cronológica
+- Verbos no passado, primeira pessoa do plural: "Realizamos", "Verificamos", "Configuramos", "Orientamos"
+- Linguagem técnica formal
+- Encerre com: "Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento."
+- Não inclua dados pessoais ou informações do cliente
+- NÃO inclua bloco de desfecho
+
+MENSAGENS DO AGENTE:
+${textoAnon}
+
+Responda APENAS com o resumo numerado e a frase final.`;
+
+      const r = await new Promise((resolve, reject) => {
+        GM_xmlhttpRequest({
+          method: 'POST',
+          url: WORKER_URL,
+          headers: { 'Content-Type': 'application/json', 'X-Nexos-Key': NEXOS_KEY },
+          data: JSON.stringify({ prompt }),
+          onload: resolve,
+          onerror: reject,
+        });
+      });
+      const j = JSON.parse(r.responseText);
+      if (j.text) {
+        resumoTec = j.text;
+        preview.textContent = resumoTec;
+        preview.style.display = 'block';
+        activeTab = 'tec';
+        setTabStyles('tec');
+        btnGerar.style.display = 'none';
+        actionBtns.style.display = 'flex';
+        showStatus('✓ Resumo gerado a partir da conversa!', 'ok');
+        // Fechar a seção
+        convSec.body.style.display = 'none';
+        convSec.title.textContent = convSec.title.textContent.replace('▾', '▸');
+      } else {
+        showStatus('Erro ao gerar resumo. Tente novamente.', 'err');
+      }
+    } catch(e) {
+      showStatus('Erro ao conectar com a IA.', 'err');
+    }
+    convBtnGerar.textContent = '🤖 Gerar resumo';
+    convBtnGerar.disabled = false;
+    convBtnPreview.disabled = false;
+  });
 
   // ─── Seção Passos ─────────────────────────────────────────────────────────
   const stepsSec = sec('📋 Passos realizados');
