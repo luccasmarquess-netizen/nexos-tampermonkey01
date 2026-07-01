@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      2.0.1
+// @version      2.0.2
 // @description  Resumo de atendimento técnico direto no Chatwoot -- sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -207,62 +207,62 @@
   // --- Dados ---------------------------------------------------------------
   const FAV = [
     'Acesso remoto estabelecido (RustDesk)',
-    'Módulo Mobile instalado e validado',
-    'Máquina TEF verificada/integrada',
+    'Modulo Mobile instalado e validado',
+    'Maquina TEF verificada/integrada',
     'Emissor fiscal componente configurado',
-    'Validação e testes de emissão fiscal realizados com resultado positivo',
-    'Integração iFood verificada',
-    'Integração 99Food verificada',
-    'Integração Keeta verificada',
+    'Validacao e testes de emissao fiscal realizados com resultado positivo',
+    'Integracao iFood verificada',
+    'Integracao 99Food verificada',
+    'Integracao Keeta verificada',
     'Bot WhatsApp configurado e validado',
     'VPN (Hamachi/Radmin) configurada',
     'Impressora instalada e configurada no Consumer',
-    'Teste de impressão realizado com resultado positivo',
-    'Balança instalada e configurada no Consumer',
+    'Teste de impressao realizado com resultado positivo',
+    'Balanca instalada e configurada no Consumer',
     'Chave Google Maps configurada no Consumer',
     'MenuDino configurado e validado',
   ];
 
   const CATS = [
-    { g: 'Instalação e Sistema', a: ['Acesso remoto estabelecido (RustDesk)','Consumer aberto e versão verificada','Atualização do Consumer executada','Consumer reiniciado','Bloqueio de antivírus/UAC verificado','Ativação/licença verificada','Backup realizado antes da intervenção','Reinstalação do Consumer realizada'] },
-    { g: 'Rede e Conectividade', a: ['Teste de conectividade com a internet','IP fixo verificado/configurado no servidor','Versão rede verificada entre computadores','VPN (Hamachi/Radmin) configurada','Reconexão entre PC servidor e PC cliente realizada','Alteração de métricas de rede realizada'] },
-    { g: 'Impressoras e Hardware', a: ['Impressora instalada e configurada no Consumer','Driver da impressora reinstalado','Local de produção vinculado aos produtos','Teste de impressão realizado com resultado positivo','Gaveta de dinheiro verificada','Balança instalada e configurada no Consumer'] },
-    { g: 'Fiscal', a: ['Módulo fiscal verificado (NFC-e/NF-e)','Emissor fiscal componente configurado','Certificado digital verificado/atualizado','Rejeição de cupom fiscal identificada e corrigida','Validação e testes de emissão fiscal realizados com resultado positivo','Emissão de cupom fiscal em lote realizada','Arquivos XML exportados ao contador','Cancelamento de NFC-e/NF-e realizado'] },
-    { g: 'Pedidos e Integrações', a: ['Módulo Mobile instalado e validado','Integração iFood verificada','Integração 99Food verificada','Integração Keeta verificada','Bot WhatsApp verificado','App do Entregador verificado','Monitor de Preparo verificado','Recebimento via PIX configurado','Totem verificado/configurado','Integração via API do parceiro configurada','SmartPOS verificado/configurado','Serviços logísticos verificados'] },
-    { g: 'MenuDino', a: ['MenuDino configurado e validado','Chave Google Maps configurada no Consumer','Recebimento via PIX configurado','Produtos em destaque no MenuDino configurados','Conta Google Play Developer criada/configurada','Ponto central de localização do estabelecimento ajustado'] },
-    { g: 'Firebird', a: ['Firebird reinstalado do zero','Serviço do Firebird reiniciado','Firebird padrão reinstalado','Firebird exclusivo removido','Comunicação do Firebird com o Consumer validada','Recuperação do banco de dados realizada'] },
-    { g: 'Orientação', a: ['Responsável orientado quanto ao procedimento','Responsável orientado sobre possíveis impactos e prevenção','Manual do Consumer indicado ao cliente','Consumer Connect (relatórios online) demonstrado','CRM verificado e orientações repassadas ao cliente','Cliente orientado a solicitar visita de técnico local / suporte próprio'] },
+    { g: 'Instalacao e Sistema', a: ['Acesso remoto estabelecido (RustDesk)','Consumer aberto e versao verificada','Atualizacao do Consumer executada','Consumer reiniciado','Bloqueio de antivirus/UAC verificado','Ativacao/licenca verificada','Backup realizado antes da intervencao','Reinstalacao do Consumer realizada'] },
+    { g: 'Rede e Conectividade', a: ['Teste de conectividade com a internet','IP fixo verificado/configurado no servidor','Versao rede verificada entre computadores','VPN (Hamachi/Radmin) configurada','Reconexao entre PC servidor e PC cliente realizada','Alteracao de metricas de rede realizada'] },
+    { g: 'Impressoras e Hardware', a: ['Impressora instalada e configurada no Consumer','Driver da impressora reinstalado','Local de producao vinculado aos produtos','Teste de impressao realizado com resultado positivo','Gaveta de dinheiro verificada','Balanca instalada e configurada no Consumer'] },
+    { g: 'Fiscal', a: ['Modulo fiscal verificado (NFC-e/NF-e)','Emissor fiscal componente configurado','Certificado digital verificado/atualizado','Rejeicao de cupom fiscal identificada e corrigida','Validacao e testes de emissao fiscal realizados com resultado positivo','Emissao de cupom fiscal em lote realizada','Arquivos XML exportados ao contador','Cancelamento de NFC-e/NF-e realizado'] },
+    { g: 'Pedidos e Integracoes', a: ['Modulo Mobile instalado e validado','Integracao iFood verificada','Integracao 99Food verificada','Integracao Keeta verificada','Bot WhatsApp verificado','App do Entregador verificado','Monitor de Preparo verificado','Recebimento via PIX configurado','Totem verificado/configurado','Integracao via API do parceiro configurada','SmartPOS verificado/configurado','Servicos logisticos verificados'] },
+    { g: 'MenuDino', a: ['MenuDino configurado e validado','Chave Google Maps configurada no Consumer','Recebimento via PIX configurado','Produtos em destaque no MenuDino configurados','Conta Google Play Developer criada/configurada','Ponto central de localizacao do estabelecimento ajustado'] },
+    { g: 'Firebird', a: ['Firebird reinstalado do zero','Servico do Firebird reiniciado','Firebird padrao reinstalado','Firebird exclusivo removido','Comunicacao do Firebird com o Consumer validada','Recuperacao do banco de dados realizada'] },
+    { g: 'Orientacao', a: ['Responsavel orientado quanto ao procedimento','Responsavel orientado sobre possiveis impactos e prevencao','Manual do Consumer indicado ao cliente','Consumer Connect (relatorios online) demonstrado','CRM verificado e orientacoes repassadas ao cliente','Cliente orientado a solicitar visita de tecnico local / suporte proprio'] },
   ];
 
   const DESFECHOS = [
-    { l: 'Resolvido',   bloco: '[ok] DESFECHO: Resolvido\nTodos os procedimentos foram concluídos com êxito e o problema foi resolvido durante o atendimento.' },
-    { l: 'Parcial',     bloco: '[!] DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendências identificadas serão acompanhadas em novo contato.' },
-    { l: 'Análise Q.A', bloco: '[qa] DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para análise pela equipe de qualidade para investigação aprofundada.' },
-    { l: 'Ag. cliente', bloco: '[wait] DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsável pelo estabelecimento para continuidade.' },
+    { l: 'Resolvido',   bloco: '[ok] DESFECHO: Resolvido\nTodos os procedimentos foram concluidos com exito e o problema foi resolvido durante o atendimento.' },
+    { l: 'Parcial',     bloco: '[!] DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendencias identificadas serao acompanhadas em novo contato.' },
+    { l: 'Analise Q.A', bloco: '[qa] DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para analise pela equipe de qualidade para investigacao aprofundada.' },
+    { l: 'Ag. cliente', bloco: '[wait] DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsavel pelo estabelecimento para continuidade.' },
   ];
 
-  const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento.';
+  const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento.';
 
   const TRADUCOES = [
     [/acesso remoto estabelecido/i,              '* Realizamos o atendimento de forma remota'],
-    [/atualização do consumer executada/i,        '* Atualizamos o sistema para a versão mais recente'],
+    [/atualização do consumer executada/i,        '* Atualizamos o sistema para a versao mais recente'],
     [/consumer reiniciado/i,                      '* Reiniciamos o sistema'],
     [/reinstalação do consumer realizada/i,       '* Reinstalamos o sistema completo'],
-    [/backup realizado/i,                         '* Realizamos uma cópia de segurança dos dados'],
-    [/bloqueio de antivírus.*verificado/i,        '* Verificamos as permissões de segurança do computador'],
-    [/ip fixo.*configurado/i,                     '* Configuramos o endereço de rede do servidor'],
-    [/vpn.*configurada/i,                         '* Configuramos a conexão entre os computadores da loja'],
-    [/reconexão entre pc servidor/i,              '* Restabelecemos a comunicação entre os computadores da loja'],
+    [/backup realizado/i,                         '* Realizamos uma copia de seguranca dos dados'],
+    [/bloqueio de antivírus.*verificado/i,        '* Verificamos as permissoes de seguranca do computador'],
+    [/ip fixo.*configurado/i,                     '* Configuramos o endereco de rede do servidor'],
+    [/vpn.*configurada/i,                         '* Configuramos a conexao entre os computadores da loja'],
+    [/reconexão entre pc servidor/i,              '* Restabelecemos a comunicacao entre os computadores da loja'],
     [/impressora instalada e configurada/i,       '* Instalamos e configuramos a impressora no sistema'],
     [/driver da impressora reinstalado/i,         '* Reinstalamos o driver da impressora'],
-    [/teste de impressão realizado.*positivo/i,   '* Testamos a impressão com resultado positivo'],
+    [/teste de impressão realizado.*positivo/i,   '* Testamos a impressao com resultado positivo'],
     [/gaveta de dinheiro verificada/i,            '* Verificamos o funcionamento da gaveta de dinheiro'],
-    [/balança instalada e configurada/i,          '* Instalamos e configuramos a balança no sistema'],
-    [/emissor fiscal.*configurado/i,              '* Corrigimos o sistema de emissão de cupons fiscais'],
-    [/módulo fiscal verificado/i,                 '* Verificamos o módulo de emissão de notas fiscais'],
+    [/balança instalada e configurada/i,          '* Instalamos e configuramos a balanca no sistema'],
+    [/emissor fiscal.*configurado/i,              '* Corrigimos o sistema de emissao de cupons fiscais'],
+    [/módulo fiscal verificado/i,                 '* Verificamos o modulo de emissao de notas fiscais'],
     [/certificado digital verificado\/atualizado/i,'* Atualizamos o certificado digital do estabelecimento'],
-    [/rejeição de cupom fiscal.*corrigida/i,      '* Identificamos e corrigimos a rejeição de cupons fiscais'],
-    [/validação e testes de emissão fiscal/i,     '* Realizamos testes de emissão fiscal com resultado positivo'],
+    [/rejeição de cupom fiscal.*corrigida/i,      '* Identificamos e corrigimos a rejeicao de cupons fiscais'],
+    [/validação e testes de emissão fiscal/i,     '* Realizamos testes de emissao fiscal com resultado positivo'],
     [/emissão de cupom fiscal em lote/i,          '* Emitimos os cupons fiscais pendentes em lote'],
     [/arquivos xml exportados/i,                  '* Exportamos os arquivos fiscais para o contador'],
     [/cancelamento de nfc-e/i,                    '* Realizamos o cancelamento das notas fiscais solicitadas'],
@@ -275,29 +275,29 @@
     [/monitor de preparo verificado/i,            '* Verificamos o funcionamento do Monitor de Preparo'],
     [/recebimento via pix configurado/i,          '* Configuramos o recebimento de pagamentos via PIX'],
     [/totem verificado/i,                         '* Verificamos e configuramos o totem de autoatendimento'],
-    [/módulo mobile instalado/i,                  '* Instalamos e validamos o módulo de atendimento pelo celular'],
-    [/máquina tef verificada/i,                   '* Verificamos e integramos a maquininha de cartão'],
-    [/integração via api do parceiro/i,           '* Configuramos a integração com o sistema do parceiro'],
-    [/menudino configurado/i,                     '* Configuramos e validamos o cardápio online'],
-    [/chave google maps configurada/i,            '* Configuramos a integração com o mapa para entregas'],
+    [/módulo mobile instalado/i,                  '* Instalamos e validamos o modulo de atendimento pelo celular'],
+    [/máquina tef verificada/i,                   '* Verificamos e integramos a maquininha de cartao'],
+    [/integração via api do parceiro/i,           '* Configuramos a integracao com o sistema do parceiro'],
+    [/menudino configurado/i,                     '* Configuramos e validamos o cardapio online'],
+    [/chave google maps configurada/i,            '* Configuramos a integracao com o mapa para entregas'],
     [/firebird.*reinstalado.*zero/i,              '* Reinstalamos o banco de dados do sistema do zero'],
     [/firebird padrão reinstalado/i,              '* Restauramos o banco de dados do sistema'],
-    [/firebird exclusivo removido/i,              '* Removemos a versão exclusiva do banco de dados'],
-    [/serviço do firebird reiniciado/i,           '* Reiniciamos o serviço de banco de dados'],
-    [/comunicação do firebird.*validada/i,        '* Validamos a comunicação do banco de dados com o sistema'],
+    [/firebird exclusivo removido/i,              '* Removemos a versao exclusiva do banco de dados'],
+    [/serviço do firebird reiniciado/i,           '* Reiniciamos o servico de banco de dados'],
+    [/comunicação do firebird.*validada/i,        '* Validamos a comunicacao do banco de dados com o sistema'],
     [/recuperação do banco de dados/i,            '* Recuperamos o banco de dados do sistema'],
-    [/responsável orientado quanto/i,             '* Orientamos o responsável sobre os procedimentos realizados'],
-    [/responsável orientado sobre.*impactos/i,    '* Orientamos o responsável sobre possíveis impactos e prevenção'],
+    [/responsável orientado quanto/i,             '* Orientamos o responsavel sobre os procedimentos realizados'],
+    [/responsável orientado sobre.*impactos/i,    '* Orientamos o responsavel sobre possiveis impactos e prevencao'],
     [/manual do consumer indicado/i,              '* Indicamos o manual do sistema para consulta'],
-    [/consumer connect.*demonstrado/i,            '* Apresentamos o portal de relatórios online'],
-    [/crm verificado/i,                           '* Verificamos o CRM e repassamos orientações'],
-    [/cliente orientado.*visita/i,                '* Orientamos o cliente a solicitar suporte técnico presencial'],
+    [/consumer connect.*demonstrado/i,            '* Apresentamos o portal de relatorios online'],
+    [/crm verificado/i,                           '* Verificamos o CRM e repassamos orientacoes'],
+    [/cliente orientado.*visita/i,                '* Orientamos o cliente a solicitar suporte tecnico presencial'],
   ];
 
   function buildTec(steps, df, obs) {
-    let txt = steps.map((s, i) => `${i+1}. ${s}`).join('\n');
+    let txt = steps.map((s, i) => ${i+1}. ${s}``).join('\n');
     txt += '\n' + FRASE_FINAL;
-    if (obs) txt += '\n\nObservação: ' + obs;
+    if (obs) txt += '\n\nObservacao: ' + obs;
     const d = DESFECHOS.find(x => x.l === df);
     if (d) txt += '\n\n' + d.bloco;
     return txt;
@@ -310,17 +310,17 @@
         if (re.test(step) && !itens.includes(texto)) { itens.push(texto); break; }
       }
     }
-    if (!itens.length) itens.push('* Realizamos os procedimentos necessários para resolver o problema');
+    if (!itens.length) itens.push('* Realizamos os procedimentos necessarios para resolver o problema');
     if (obs) itens.push('* ' + obs);
     const dm = {
       'Resolvido':   '\nO problema foi resolvido durante este atendimento.',
       'Parcial':     '\nO problema foi parcialmente resolvido. Entraremos em contato para continuidade.',
-      'Análise Q.A': '\nO caso foi encaminhado para análise aprofundada da nossa equipe.',
-      'Ag. cliente': '\nO atendimento está aguardando seu retorno para continuidade.',
+      'Analise Q.A': '\nO caso foi encaminhado para analise aprofundada da nossa equipe.',
+      'Ag. cliente': '\nO atendimento esta aguardando seu retorno para continuidade.',
     };
     let txt = itens.join('\n');
     if (df && dm[df]) txt += dm[df];
-    txt += '\n\nCaso tenha qualquer dúvida, estamos à disposição.';
+    txt += '\n\nCaso tenha qualquer duvida, estamos a disposicao.';
     if (fim) txt += '\n\n' + fim;
     return txt;
   }
@@ -496,7 +496,7 @@
   const convSecHint = document.createElement('div');
   convSecHint.dataset.hint = '1';
   convSecHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:8px;line-height:1.5;';
-  convSecHint.textContent = 'Captura apenas as mensagens enviadas pelo agente. Dados sensíveis (telefone, CPF, CNPJ, e-mail) são removidos antes do envio para a IA.';
+  convSecHint.textContent = 'Captura apenas as mensagens enviadas pelo agente. Dados sensiveis (telefone, CPF, CNPJ, e-mail) sao removidos antes do envio para a IA.';
   convSec.body.appendChild(convSecHint);
 
   // Preview do que vai ser enviado
@@ -518,7 +518,7 @@
   convBtnRow.style.cssText = 'display:flex;gap:6px;';
 
   const convBtnPreview = document.createElement('button');
-  convBtnPreview.textContent = '[ver] Ver o que será enviado';
+  convBtnPreview.textContent = '[ver] Ver o que sera enviado';
   Object.assign(convBtnPreview.style, {
     flex: '1', padding: '7px', borderRadius: '6px',
     border: '1px solid #d1d5db', background: '#fff',
@@ -555,7 +555,7 @@
 '));
     convPreviewBox.textContent = textoAnon;
     convPreviewBox.style.display = 'block';
-    convStatusEl.textContent = `[ok] ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensíveis anonimizados.`;
+    convStatusEl.textContent = [ok] ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensiveis anonimizados.``;
     convStatusEl.style.color = '#16a34a';
     convStatusEl.style.display = 'block';
   });
@@ -574,20 +574,20 @@
     convBtnGerar.disabled = true;
     convBtnPreview.disabled = true;
     try {
-      const prompt = `Você é um técnico sênior de suporte do sistema Consumer (PDV/ERP para restaurantes). Analise as mensagens abaixo enviadas pelo agente de suporte durante um atendimento e gere um resumo técnico profissional dos procedimentos realizados.
+      const prompt = Voce e um tecnico senior de suporte do sistema Consumer (PDV/ERP para restaurantes). Analise as mensagens abaixo enviadas pelo agente de suporte durante um atendimento e gere um resumo tecnico profissional dos procedimentos realizados.
 
 REGRAS:
-- Itens numerados (1. 2. 3...) na ordem cronológica
+- Itens numerados (1. 2. 3...) na ordem cronologica
 - Verbos no passado, primeira pessoa do plural: "Realizamos", "Verificamos", "Configuramos", "Orientamos"
-- Linguagem técnica formal
-- Encerre com: "Todos os procedimentos e testes foram realizados na presença do responsável pelo estabelecimento."
-- Não inclua dados pessoais ou informações do cliente
-- NÃO inclua bloco de desfecho
+- Linguagem tecnica formal
+- Encerre com: "Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento."
+- Nao inclua dados pessoais ou informacoes do cliente
+- NAO inclua bloco de desfecho
 
 MENSAGENS DO AGENTE:
 ${textoAnon}
 
-Responda APENAS com o resumo numerado e a frase final.`;
+Responda APENAS com o resumo numerado e a frase final.``;
 
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
@@ -649,7 +649,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
   const catsLabel = document.createElement('div');
   catsLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
   catsLabel.dataset.sublabel = '1';
-  catsLabel.textContent = '[cat] Outras ações';
+  catsLabel.textContent = '[cat] Outras acoes';
   stepsSec.body.appendChild(catsLabel);
 
   const catsWrap = document.createElement('div');
@@ -689,7 +689,7 @@ Responda APENAS com o resumo numerado e a frase final.`;
 
   const customRow = document.createElement('div');
   customRow.style.cssText = 'display:flex;gap:6px;margin-top:8px;';
-  const customInp = inp('Ação personalizada...');
+  const customInp = inp('Acao personalizada...');
   customInp.style.flex = '1';
   const customAddBtn = document.createElement('button');
   customAddBtn.textContent = '+ Adicionar';
@@ -743,12 +743,12 @@ Responda APENAS com o resumo numerado e a frase final.`;
     convBtn.textContent = '[wait] Extraindo...';
     convBtn.disabled = true;
     try {
-      const prompt = `Você é um técnico de suporte do sistema Consumer (PDV para restaurantes). Analise a conversa abaixo e liste APENAS os procedimentos técnicos que foram realizados durante o atendimento. Responda SOMENTE com uma lista JSON de strings, sem markdown, sem explicações. Exemplo: ["Acesso remoto estabelecido (RustDesk)", "Consumer reiniciado"]
+      const prompt = Voce e um tecnico de suporte do sistema Consumer (PDV para restaurantes). Analise a conversa abaixo e liste APENAS os procedimentos tecnicos que foram realizados durante o atendimento. Responda SOMENTE com uma lista JSON de strings, sem markdown, sem explicacoes. Exemplo: ["Acesso remoto estabelecido (RustDesk)", "Consumer reiniciado"]
 
 CONVERSA:
 ${conv}
 
-Responda APENAS com o array JSON.`;
+Responda APENAS com o array JSON.``;
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'POST',
@@ -761,13 +761,13 @@ Responda APENAS com o array JSON.`;
       });
       const j = JSON.parse(r.responseText);
       if (j.text) {
-        const raw = j.text.replace(/```json|```/g, '').trim();
+        const raw = j.text.replace(/``json|````/g, '').trim();
         const passos = JSON.parse(raw);
         if (Array.isArray(passos) && passos.length) {
           passos.forEach(p => { if (p && !selectedSteps.includes(p)) selectedSteps.push(p); });
           renderSteps();
           convInp.value = '';
-          showStatus(`[ok] ${passos.length} passo(s) extraído(s) e adicionado(s)!`, 'ok');
+          showStatus([ok] ${passos.length} passo(s) extraido(s) e adicionado(s)!``, 'ok');
         } else {
           showStatus('Nenhum procedimento identificado. Tente descrever mais a conversa.', 'err');
         }
@@ -821,7 +821,7 @@ Responda APENAS com o array JSON.`;
   body.appendChild(dfSec.wrap);
 
   // --- Seção Mensagem de finalização (colapsável) -----------------------------
-  const fimSec = sec('[msg] Mensagem de finalização (para o cliente)  >');
+  const fimSec = sec('[msg] Mensagem de finalizacao (para o cliente)  >');
   fimSec.body.style.display = 'none';
   fimSec.title.style.cursor = 'pointer';
   fimSec.title.addEventListener('click', () => {
@@ -834,7 +834,7 @@ Responda APENAS com o array JSON.`;
   fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
   fimHint.dataset.hint = '1';
   fimHint.textContent = 'Salva automaticamente. Aparece no final do resumo para o cliente.';
-  const fimInp = inp('Ex: Qualquer dúvida estou à disposição! Att, Luccas -- Suporte Consumer', 'textarea');
+  const fimInp = inp('Ex: Qualquer duvida estou a disposicao! Att, Luccas -- Suporte Consumer', 'textarea');
   fimInp.rows = 3;
   fimInp.style.resize = 'vertical';
   fimInp.value = GM_getValue('nexos_fim', '');
@@ -844,7 +844,7 @@ Responda APENAS com o array JSON.`;
   body.appendChild(fimSec.wrap);
 
   // --- Seção Observação (colapsável) ---------------------------------------
-  const obsSec = sec('[obs] Observação adicional (opcional)  >');
+  const obsSec = sec('[obs] Observacao adicional (opcional)  >');
   obsSec.body.style.display = 'none';
   obsSec.title.style.cursor = 'pointer';
   obsSec.title.addEventListener('click', () => {
@@ -866,7 +866,7 @@ Responda APENAS com o array JSON.`;
   const tabTec = document.createElement('button');
   const tabCli = document.createElement('button');
   [tabTec, tabCli].forEach((t, i) => {
-    t.textContent = i === 0 ? 'Resumo técnico' : 'Para o cliente';
+    t.textContent = i === 0 ? 'Resumo tecnico' : 'Para o cliente';
     Object.assign(t.style, {
       flex: '1', padding: '6px', borderRadius: '6px',
       border: '1px solid #e5e7eb', background: '#fff',
@@ -1022,8 +1022,8 @@ Responda APENAS com o array JSON.`;
     btnFormatAI.disabled = true;
     try {
       const prompt = activeTab === 'tec'
-        ? `Você é um técnico sênior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional, coeso e claro. Mantenha os mesmos procedimentos, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos), mantenha a numeração e a frase final. Não invente informações.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reformulado.`
-        : `Você é um assistente de comunicação. Reescreva o resumo abaixo em linguagem simples e amigável para o dono do restaurante, mantendo os marcadores * e a frase final. Não use termos técnicos.\n\nRESUMO:\n${txt}\n\nResponda APENAS com o resumo reescrito.`;
+        ? Voce e um tecnico senior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional, coeso e claro. Mantenha os mesmos procedimentos, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos), mantenha a numeracao e a frase final. Nao invente informacoes.RESUMO:${txt}Responda APENAS com o resumo reformulado.``
+        : Voce e um assistente de comunicacao. Reescreva o resumo abaixo em linguagem simples e amigavel para o dono do restaurante, mantendo os marcadores * e a frase final. Nao use termos tecnicos.RESUMO:${txt}Responda APENAS com o resumo reescrito.``;
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'POST',
