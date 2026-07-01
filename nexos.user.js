@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.6.0
+// @version      1.7.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
+// @grant        GM_setClipboard
 // @connect      app.chatwoot.com
 // @updateURL    https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
 // @downloadURL  https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
@@ -768,21 +769,10 @@
   });
 
   btnCopy.addEventListener('click', () => {
-    // Relê sempre o estado atual — evita bug de closure com valor antigo
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
-    const doCopy = () => {
-      const ta = document.createElement('textarea');
-      ta.value = txt;
-      Object.assign(ta.style, { position: 'fixed', top: '0', left: '0', width: '1px', height: '1px', opacity: '0' });
-      document.body.appendChild(ta); ta.focus(); ta.select();
-      try { document.execCommand('copy'); showStatus('✓ Copiado!', 'ok'); }
-      catch(e) { showStatus('Erro ao copiar.', 'err'); }
-      document.body.removeChild(ta);
-    };
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(txt).then(() => showStatus('✓ Copiado!', 'ok')).catch(doCopy);
-    } else { doCopy(); }
+    GM_setClipboard(txt, 'text');
+    showStatus('✓ Copiado!', 'ok');
   });
 
 
