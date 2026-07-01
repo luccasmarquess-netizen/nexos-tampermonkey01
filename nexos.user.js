@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      3.0.1
+// @version      3.0.2
 // @description  Resumo de atendimento tecnico direto no Chatwoot
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -921,7 +921,7 @@
 
     // Formata com IA em paralelo
     try {
-      var promptTec = 'Voce e um tecnico senior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional e coeso. Mantenha os mesmos procedimentos numerados, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos, Orientamos), mantenha a frase final exatamente como esta. Nao invente informacoes. RESUMO: ' + baseTec + ' Responda APENAS com o resumo reformulado.';
+      var promptTec = 'Reformule o resumo tecnico abaixo. REGRAS OBRIGATORIAS: (1) Mantenha TODOS os itens numerados separados, um por linha, comecando com 1. 2. 3. etc. NUNCA junte itens em um unico paragrafo. (2) Cada item deve comecar com verbo no passado em primeira pessoa do plural: Realizamos, Verificamos, Configuramos, Orientamos, Identificamos, Instalamos. (3) Mantenha a frase final exatamente como esta. (4) Mantenha o bloco de DESFECHO exatamente como esta. (5) Nao invente procedimentos. RESUMO ORIGINAL: ' + baseTec + ' Responda APENAS com os itens numerados e a frase final, sem introducao.';
       var promptCli = 'Voce e um assistente de comunicacao para uma empresa de suporte tecnico de restaurantes. Melhore o texto abaixo mantendo a estrutura de topicos com *, a introducao Ola! Segue o resumo... e a frase final. Torne cada item mais claro e humanizado para o dono do restaurante, sem usar termos tecnicos. TEXTO: ' + baseCli + ' Responda APENAS com o texto melhorado.';
 
       var results = await Promise.all([chamarIA(promptTec), chamarIA(promptCli)]);
