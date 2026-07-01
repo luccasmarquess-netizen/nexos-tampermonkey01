@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      2.0.7
+// @version      2.1.2
 // @description  Resumo de atendimento técnico direto no Chatwoot -- sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -223,10 +223,10 @@
   ];
 
   const DESFECHOS = [
-    { l: 'Resolvido',   bloco: '[ok] DESFECHO: Resolvido\nTodos os procedimentos foram concluidos com exito e o problema foi resolvido durante o atendimento.' },
+    { l: 'Resolvido',   bloco: 'DESFECHO: Resolvido\nTodos os procedimentos foram concluidos com exito e o problema foi resolvido durante o atendimento.' },
     { l: 'Parcial',     bloco: '[!] DESFECHO: Parcial\nO problema foi parcialmente resolvido. Pendencias identificadas serao acompanhadas em novo contato.' },
     { l: 'Analise Q.A', bloco: '[qa] DESFECHO: Encaminhado para Q.A\nO chamado foi encaminhado para analise pela equipe de qualidade para investigacao aprofundada.' },
-    { l: 'Ag. cliente', bloco: '[wait] DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsavel pelo estabelecimento para continuidade.' },
+    { l: 'Ag. cliente', bloco: 'DESFECHO: Aguardando cliente\nAtendimento suspenso. Aguardando retorno do responsavel pelo estabelecimento para continuidade.' },
   ];
 
   const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento.';
@@ -336,15 +336,16 @@
   Object.assign(modal.style, {
     background: '#fff',
     borderRadius: '12px',
-    width: '560px',
-    maxWidth: '90vw',
-    maxHeight: '85vh',
+    width: '540px',
+    maxWidth: '92vw',
+    maxHeight: '92vh',
     display: 'flex',
     flexDirection: 'column',
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
     fontSize: '13px',
     color: '#111',
     boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+    overflowY: 'auto',
   });
 
   // Header
@@ -353,7 +354,7 @@
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     padding: '14px 18px', background: '#1F93FF', color: '#fff', flexShrink: '0',
   });
-  hdr.innerHTML = '<span style="font-size:15px;font-weight:700;">[nexos] Nexos</span>';
+  hdr.innerHTML = '<span style="font-size:15px;font-weight:700;">Nexos</span>';
   const closeBtn = document.createElement('button');
   closeBtn.textContent = 'x';
   Object.assign(closeBtn.style, {
@@ -380,7 +381,6 @@
     padding: '10px 12px', borderTop: '1px solid #e5e7eb',
     display: 'flex', flexDirection: 'column', gap: '5px',
     flexShrink: '0', background: '#f9fafb',
-    maxHeight: '320px', overflowY: 'auto',
   });
   modal.appendChild(ftr);
 
@@ -463,7 +463,7 @@
     b.style.borderColor = sel ? '#1F93FF' : '#e5e7eb';
     b.style.color = sel ? '#1F93FF' : '#374151';
     const chk = b.querySelector('span');
-    chk.textContent = sel ? '[ok]' : '';
+    chk.textContent = sel ? 'v' : '';
     chk.style.background = sel ? '#1F93FF' : '#fff';
     chk.style.borderColor = sel ? '#1F93FF' : '#d1d5db';
     chk.style.color = '#fff';
@@ -506,7 +506,7 @@
   convBtnRow.style.cssText = 'display:flex;gap:6px;';
 
   const convBtnPreview = document.createElement('button');
-  convBtnPreview.textContent = '[ver] Ver o que sera enviado';
+  convBtnPreview.textContent = 'Ver o que sera enviado';
   Object.assign(convBtnPreview.style, {
     flex: '1', padding: '7px', borderRadius: '6px',
     border: '1px solid #d1d5db', background: '#fff',
@@ -515,7 +515,7 @@
   });
 
   const convBtnGerar = document.createElement('button');
-  convBtnGerar.textContent = '[IA] Gerar resumo';
+  convBtnGerar.textContent = 'Gerar resumo (IA)';
   Object.assign(convBtnGerar.style, {
     flex: '1', padding: '7px', borderRadius: '6px',
     border: '1px solid #1F93FF', background: '#eff6ff',
@@ -541,7 +541,7 @@
     const textoAnon = anonimizar(msgs.join('\n---\n'));
     convPreviewBox.textContent = textoAnon;
     convPreviewBox.style.display = 'block';
-    convStatusEl.textContent = '[ok] ' + msgs.length + ' mensagem(ns) do agente capturada(s). Dados sensiveis anonimizados.';
+    convStatusEl.textContent = msgs.length + ' mensagem(ns) capturada(s). Dados sensiveis anonimizados.';
     convStatusEl.style.color = '#16a34a';
     convStatusEl.style.display = 'block';
   });
@@ -554,7 +554,7 @@
       return;
     }
     const textoAnon = anonimizar(msgs.join('\n---\n'));
-    convBtnGerar.textContent = '[wait] Gerando...';
+    convBtnGerar.textContent = 'Gerando...';
     convBtnGerar.disabled = true;
     convBtnPreview.disabled = true;
     try {
@@ -579,7 +579,7 @@
         setTabStyles('tec');
         btnGerar.style.display = 'none';
         actionBtns.style.display = 'flex';
-        showStatus('[ok] Resumo gerado a partir da conversa!', 'ok');
+        showStatus('Resumo gerado a partir da conversa!', 'ok');
         // Fechar a seção
         convSec.body.style.display = 'none';
         convSec.title.textContent = convSec.title.textContent.replace('v', '>');
@@ -589,13 +589,13 @@
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    convBtnGerar.textContent = '[IA] Gerar resumo';
+    convBtnGerar.textContent = 'Gerar resumo (IA)';
     convBtnGerar.disabled = false;
     convBtnPreview.disabled = false;
   });
 
   // --- Seção Passos ---------------------------------------------------------
-  const stepsSec = sec('[copy] Passos realizados');
+  const stepsSec = sec('Passos realizados');
   const badge = document.createElement('span');
   Object.assign(badge.style, {
     background: '#1F93FF', color: '#fff', borderRadius: '99px',
@@ -609,7 +609,7 @@
   const favLabel = document.createElement('div');
   favLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;';
   favLabel.dataset.sublabel = '1';
-  favLabel.textContent = '[fav] Mais usados';
+  favLabel.textContent = 'Mais usados';
   stepsSec.body.appendChild(favLabel);
 
   const favGrid = document.createElement('div');
@@ -620,7 +620,7 @@
   const catsLabel = document.createElement('div');
   catsLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
   catsLabel.dataset.sublabel = '1';
-  catsLabel.textContent = '[cat] Outras acoes';
+  catsLabel.textContent = 'Outras acoes';
   stepsSec.body.appendChild(catsLabel);
 
   const catsWrap = document.createElement('div');
@@ -684,7 +684,7 @@
   const convLabel = document.createElement('div');
   convLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
   convLabel.dataset.sublabel = '1';
-  convLabel.textContent = '[IA] Extrair passos da conversa (IA)';
+  convLabel.textContent = 'Extrair passos via IA';
   stepsSec.body.appendChild(convLabel);
 
   const convHint = document.createElement('div');
@@ -701,7 +701,7 @@
   stepsSec.body.appendChild(convInp);
 
   const convBtn = document.createElement('button');
-  convBtn.textContent = '[IA] Extrair passos';
+  convBtn.textContent = 'Extrair passos';
   Object.assign(convBtn.style, {
     marginTop: '6px', padding: '7px 12px', borderRadius: '6px',
     border: '1px solid #7c3aed', background: '#f5f3ff',
@@ -711,7 +711,7 @@
   convBtn.addEventListener('click', async () => {
     const conv = convInp.value.trim();
     if (!conv) { showStatus('Cole a conversa antes de extrair.', 'err'); return; }
-    convBtn.textContent = '[wait] Extraindo...';
+    convBtn.textContent = 'Extraindo...';
     convBtn.disabled = true;
     try {
       const prompt = 'Voce e um tecnico de suporte do sistema Consumer. Analise a conversa abaixo e liste APENAS os procedimentos tecnicos realizados. Responda SOMENTE com lista JSON de strings. CONVERSA: ' + conv + ' Responda APENAS com o array JSON.';
@@ -733,7 +733,7 @@
           passos.forEach(p => { if (p && !selectedSteps.includes(p)) selectedSteps.push(p); });
           renderSteps();
           convInp.value = '';
-          showStatus('[ok] ' + passos.length + ' passo(s) extraido(s) e adicionado(s)!', 'ok');
+          showStatus(passos.length + ' passo(s) extraido(s) e adicionado(s)!', 'ok');
         } else {
           showStatus('Nenhum procedimento identificado. Tente descrever mais a conversa.', 'err');
         }
@@ -743,14 +743,14 @@
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    convBtn.textContent = '[IA] Extrair passos';
+    convBtn.textContent = 'Extrair passos';
     convBtn.disabled = false;
   });
   stepsSec.body.appendChild(convBtn);
   body.appendChild(stepsSec.wrap);
 
   // --- Seção Selecionados ---------------------------------------------------
-  const selSec = sec('[ok] Passos selecionados');
+  const selSec = sec('Passos selecionados');
   selSec.wrap.style.display = 'none';
   const selList = document.createElement('div');
   selList.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
@@ -758,7 +758,7 @@
   body.appendChild(selSec.wrap);
 
   // --- Seção Desfecho -------------------------------------------------------
-  const dfSec = sec('[fim] Desfecho');
+  const dfSec = sec('Desfecho');
   const dfGrid = document.createElement('div');
   dfGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;';
   const dfCls = [
@@ -810,7 +810,7 @@
   body.appendChild(fimSec.wrap);
 
   // --- Seção Observação (colapsável) ---------------------------------------
-  const obsSec = sec('[obs] Observacao adicional (opcional)  >');
+  const obsSec = sec('Observacao adicional (opcional) >');
   obsSec.body.style.display = 'none';
   obsSec.title.style.cursor = 'pointer';
   obsSec.title.addEventListener('click', () => {
@@ -855,8 +855,7 @@
     background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '7px',
     padding: '8px', fontSize: '12px', lineHeight: '1.6',
     whiteSpace: 'pre-wrap', color: '#111',
-    height: '90px', maxHeight: '90px', minHeight: '90px',
-    overflowY: 'scroll', display: 'none', flexShrink: '0',
+    display: 'none',
   });
   ftr.appendChild(preview);
 
@@ -873,9 +872,9 @@
   // Action btns
   const actionBtns = document.createElement('div');
   actionBtns.style.cssText = 'display:none;flex-direction:column;gap:6px;';
-  const btnCopy    = btn('[copy] Copiar texto', { background: '#1F93FF', color: '#fff' });
-  const btnFormatAI = btn('[ai] Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
-  const btnReset   = btn('<- Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
+  const btnCopy    = btn('Copiar texto', { background: '#1F93FF', color: '#fff' });
+  const btnFormatAI = btn('Formatar com IA', { background: '#fff', color: '#7c3aed', border: '1px solid #c4b5fd' });
+  const btnReset   = btn('Novo chamado', { background: 'transparent', color: '#9ca3af', border: '1px solid #e5e7eb', fontSize: '12px' });
   [btnCopy, btnFormatAI].forEach(b => actionBtns.appendChild(b));
   ftr.appendChild(actionBtns);
   ftr.appendChild(btnReset);
@@ -984,7 +983,7 @@
   btnFormatAI.addEventListener('click', async () => {
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) return;
-    btnFormatAI.textContent = '[wait] Formatando...';
+    btnFormatAI.textContent = 'Formatando...';
     btnFormatAI.disabled = true;
     try {
       const prompt = activeTab === 'tec'
@@ -1006,14 +1005,14 @@
         else resumoCli = j.text;
         preview.textContent = j.text;
         preview.style.display = 'block';
-        showStatus('[ok] Formatado com IA!', 'ok');
+        showStatus('Formatado com IA!', 'ok');
       } else {
         showStatus('Erro ao formatar. Tente novamente.', 'err');
       }
     } catch(e) {
       showStatus('Erro ao conectar com a IA.', 'err');
     }
-    btnFormatAI.textContent = '[ai] Formatar com IA';
+    btnFormatAI.textContent = 'Formatar com IA';
     btnFormatAI.disabled = false;
   });
 
@@ -1058,9 +1057,9 @@
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
     copyText(txt).then(() => {
-      showStatus('[ok] Copiado!', 'ok');
-      btnCopy.textContent = '[ok] Copiado!';
-      setTimeout(() => { btnCopy.textContent = '[copy] Copiar texto'; }, 2000);
+      showStatus('Copiado!', 'ok');
+      btnCopy.textContent = 'Copiado!';
+      setTimeout(() => { btnCopy.textContent = 'Copiar texto'; }, 2000);
     }).catch(() => {
       showStatus('Erro ao copiar. Tente Ctrl+C no texto acima.', 'err');
     });
@@ -1073,7 +1072,7 @@
     renderSteps(); renderDf(); resetResult();
     catsWrap.querySelectorAll('[data-content]').forEach(el => el.style.display = 'none');
     catsWrap.querySelectorAll('[data-arr]').forEach(el => el.textContent = '>');
-    btnFormatAI.textContent = '[ai] Formatar com IA';
+    btnFormatAI.textContent = 'Formatar com IA';
     btnFormatAI.disabled = false;
   });
 
