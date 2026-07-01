@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.5.0
+// @version      1.6.0
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -18,6 +18,131 @@
 
 (function () {
   'use strict';
+
+  // ─── Tema ────────────────────────────────────────────────────────────────
+  const THEMES = {
+    light: {
+      bg:       '#ffffff',
+      bgSec:    '#f9fafb',
+      bgMu:     '#f3f4f6',
+      border:   '#e5e7eb',
+      border2:  '#d1d5db',
+      tx:       '#111111',
+      tx2:      '#374151',
+      tx3:      '#6b7280',
+      tx4:      '#9ca3af',
+      overlay:  'rgba(0,0,0,0.5)',
+      shadow:   '0 20px 60px rgba(0,0,0,0.3)',
+      stepSel:  '#eff6ff',
+      ac:       '#1F93FF',
+      acLight:  '#eff6ff',
+      acBorder: '#1F93FF',
+      ftrBg:    '#f9fafb',
+    },
+    dark: {
+      bg:       '#1e1e2e',
+      bgSec:    '#2a2a3d',
+      bgMu:     '#252538',
+      border:   '#3a3a50',
+      border2:  '#4a4a60',
+      tx:       '#e2e2f0',
+      tx2:      '#c0c0d8',
+      tx3:      '#8888a8',
+      tx4:      '#666688',
+      overlay:  'rgba(0,0,0,0.7)',
+      shadow:   '0 20px 60px rgba(0,0,0,0.6)',
+      stepSel:  '#1e3a5f',
+      ac:       '#1F93FF',
+      acLight:  '#1e3a5f',
+      acBorder: '#1F93FF',
+      ftrBg:    '#2a2a3d',
+    },
+  };
+
+  function getTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? THEMES.dark : THEMES.light;
+  }
+
+  function applyTheme() {
+    const t = getTheme();
+    overlay.style.background = t.overlay;
+    modal.style.background = t.bg;
+    modal.style.boxShadow = t.shadow;
+    modal.style.color = t.tx;
+    body.style.background = t.bg;
+    ftr.style.background = t.ftrBg;
+    ftr.style.borderTopColor = t.border;
+
+    // Seções
+    modal.querySelectorAll('[data-sec-wrap]').forEach(el => {
+      el.style.borderColor = t.border;
+      el.style.background = t.bg;
+    });
+    modal.querySelectorAll('[data-sec-title]').forEach(el => {
+      el.style.background = t.bgSec;
+      el.style.borderBottomColor = t.border;
+      el.style.color = t.tx3;
+    });
+    modal.querySelectorAll('[data-sec-body]').forEach(el => {
+      el.style.background = t.bg;
+    });
+
+    // Step btns
+    modal.querySelectorAll('[data-label]').forEach(b => {
+      const sel = selectedSteps.includes(b.dataset.label);
+      b.style.background = sel ? t.acLight : t.bg;
+      b.style.borderColor = sel ? t.acBorder : t.border;
+      b.style.color = sel ? t.ac : t.tx2;
+    });
+
+    // Cat btns
+    modal.querySelectorAll('[data-cat-btn]').forEach(b => {
+      b.style.background = t.bgMu;
+      b.style.borderBottomColor = t.border;
+      b.style.color = t.tx2;
+    });
+    modal.querySelectorAll('[data-cat-content]').forEach(el => {
+      el.style.borderBottomColor = t.border;
+      el.style.background = t.bg;
+    });
+
+    // Inputs e textareas
+    modal.querySelectorAll('[data-inp]').forEach(el => {
+      el.style.background = t.bg;
+      el.style.borderColor = t.border;
+      el.style.color = t.tx;
+    });
+
+    // Hints
+    modal.querySelectorAll('[data-hint]').forEach(el => {
+      el.style.color = t.tx4;
+    });
+
+    // Sub-labels
+    modal.querySelectorAll('[data-sublabel]').forEach(el => {
+      el.style.color = t.tx3;
+    });
+
+    // Preview
+    preview.style.background = t.bgSec;
+    preview.style.borderColor = t.border;
+    preview.style.color = t.tx;
+
+    // Tabs
+    setTabStyles(activeTab, t);
+
+    // Btn reset
+    btnReset.style.color = t.tx4;
+    btnReset.style.borderColor = t.border;
+  }
+
+  function setTabStyles(tab, t) {
+    if (!t) t = getTheme();
+    const on  = { background: t.acLight, borderColor: t.acBorder, color: t.ac, fontWeight: '600' };
+    const off = { background: t.bg,      borderColor: t.border,    color: t.tx3, fontWeight: '500' };
+    Object.assign(tabTec.style, tab === 'tec' ? on : off);
+    Object.assign(tabCli.style, tab === 'cli' ? on : off);
+  }
 
   // Chave interna — mesma que NEXOS_INTERNAL_KEY no Worker
   const NEXOS_KEY = 'nexos-programaconsumer-2025';
@@ -225,8 +350,10 @@
   // ─── Helpers de estilo ────────────────────────────────────────────────────
   function sec(title) {
     const wrap = document.createElement('div');
+    wrap.dataset.secWrap = '1';
     Object.assign(wrap.style, { border: '1px solid #e5e7eb', borderRadius: '8px' });
     const t = document.createElement('div');
+    t.dataset.secTitle = '1';
     Object.assign(t.style, {
       fontSize: '11px', fontWeight: '700', color: '#6b7280',
       textTransform: 'uppercase', letterSpacing: '.06em',
@@ -234,6 +361,7 @@
     });
     t.textContent = title;
     const b = document.createElement('div');
+    b.dataset.secBody = '1';
     b.style.padding = '8px 10px';
     wrap.appendChild(t); wrap.appendChild(b);
     return { wrap, title: t, body: b };
@@ -255,13 +383,14 @@
     const i = document.createElement(type === 'textarea' ? 'textarea' : 'input');
     if (type !== 'textarea') i.type = type;
     i.placeholder = placeholder;
+    i.dataset.inp = '1';
     Object.assign(i.style, {
       width: '100%', padding: '7px 8px', border: '1px solid #e5e7eb',
       borderRadius: '6px', fontSize: '12px', color: '#111',
       fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
     });
     i.addEventListener('focus', () => i.style.borderColor = '#1F93FF');
-    i.addEventListener('blur', () => i.style.borderColor = '#e5e7eb');
+    i.addEventListener('blur', () => { const t = getTheme(); i.style.borderColor = t.border; });
     return i;
   }
 
@@ -315,6 +444,7 @@
 
   const favLabel = document.createElement('div');
   favLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin-bottom:6px;';
+  favLabel.dataset.sublabel = '1';
   favLabel.textContent = '⭐ Mais usados';
   stepsSec.body.appendChild(favLabel);
 
@@ -325,12 +455,14 @@
 
   const catsLabel = document.createElement('div');
   catsLabel.style.cssText = 'font-size:11px;font-weight:600;color:#6b7280;margin:10px 0 4px;';
+  catsLabel.dataset.sublabel = '1';
   catsLabel.textContent = '📂 Outras ações';
   stepsSec.body.appendChild(catsLabel);
 
   const catsWrap = document.createElement('div');
   CATS.forEach(cat => {
     const catBtn2 = document.createElement('button');
+    catBtn2.dataset.catBtn = '1';
     Object.assign(catBtn2.style, {
       width: '100%', textAlign: 'left', padding: '7px 10px',
       border: 'none', borderBottom: '1px solid #e5e7eb',
@@ -344,6 +476,7 @@
     catBtn2.appendChild(arr);
 
     const content = document.createElement('div');
+    content.dataset.catContent = '1';
     content.style.cssText = 'display:none;flex-direction:column;gap:4px;padding:8px 10px;border-bottom:1px solid #e5e7eb;';
     cat.a.forEach(l => content.appendChild(stepBtn(l)));
 
@@ -425,6 +558,7 @@
   const fimSec = sec('💬 Mensagem de finalização (para o cliente)');
   const fimHint = document.createElement('div');
   fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
+  fimHint.dataset.hint = '1';
   fimHint.textContent = 'Salva automaticamente. Aparece no final do resumo para o cliente.';
   const fimInp = inp('Ex: Qualquer dúvida estou à disposição! Att, Luccas — Suporte Consumer', 'textarea');
   fimInp.rows = 3;
@@ -560,10 +694,7 @@
 
   function setTab(tab) {
     activeTab = tab;
-    const on = { background: '#eff6ff', borderColor: '#1F93FF', color: '#1F93FF', fontWeight: '600' };
-    const off = { background: '#fff', borderColor: '#e5e7eb', color: '#6b7280', fontWeight: '500' };
-    Object.assign(tabTec.style, tab === 'tec' ? on : off);
-    Object.assign(tabCli.style, tab === 'cli' ? on : off);
+    setTabStyles(tab);
     const txt = tab === 'tec' ? resumoTec : resumoCli;
     if (txt) { preview.textContent = txt; preview.style.display = 'block'; }
     else preview.style.display = 'none';
@@ -681,9 +812,15 @@
   document.documentElement.appendChild(toggleBtn);
 
   function openModal() {
+    applyTheme();
     overlay.style.display = 'flex';
     toggleBtn.style.display = 'none';
   }
+
+  // Atualiza tema quando o sistema muda
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (overlay.style.display !== 'none') applyTheme();
+  });
   function closeModal() {
     overlay.style.display = 'none';
     toggleBtn.style.display = 'block';
