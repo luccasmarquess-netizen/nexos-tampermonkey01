@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      3.0.0
+// @version      3.0.1
 // @description  Resumo de atendimento tecnico direto no Chatwoot
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -192,6 +192,99 @@
     });
   }
 
+  // --- Tema ---
+  function isDark() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  var T = {
+    light: {
+      bg: '#ffffff', bgSec: '#f9fafb', bgMu: '#f3f4f6',
+      border: '#e5e7eb', tx: '#111111', tx2: '#374151', tx3: '#6b7280', tx4: '#9ca3af',
+      overlay: 'rgba(0,0,0,0.5)', stepSel: '#eff6ff', stepSelTx: '#1F93FF',
+      ftrBg: '#f9fafb', catBg: '#f3f4f6', catTx: '#374151',
+      inpBg: '#ffffff', inpBorder: '#e5e7eb', inpTx: '#111111',
+      prevBg: '#f9fafb',
+    },
+    dark: {
+      bg: '#1e1e2e', bgSec: '#2a2a3d', bgMu: '#252538',
+      border: '#3a3a50', tx: '#e2e2f0', tx2: '#c0c0d8', tx3: '#8888a8', tx4: '#666688',
+      overlay: 'rgba(0,0,0,0.7)', stepSel: '#1e3a5f', stepSelTx: '#60a5fa',
+      ftrBg: '#2a2a3d', catBg: '#252538', catTx: '#c0c0d8',
+      inpBg: '#1e1e2e', inpBorder: '#3a3a50', inpTx: '#e2e2f0',
+      prevBg: '#2a2a3d',
+    },
+  };
+
+  function getT() { return isDark() ? T.dark : T.light; }
+
+  function applyTheme() {
+    var t = getT();
+    overlay.style.background = t.overlay;
+    modal.style.background = t.bg;
+    modal.style.color = t.tx;
+    hdr.style.background = '#1F93FF'; // sempre azul
+    ftr.style.background = t.ftrBg;
+    ftr.style.borderTopColor = t.border;
+    body.style.background = t.bg;
+
+    // Seções
+    modal.querySelectorAll('[data-sec-wrap]').forEach(function(el) {
+      el.style.borderColor = t.border;
+    });
+    modal.querySelectorAll('[data-sec-title]').forEach(function(el) {
+      el.style.background = t.bgSec;
+      el.style.borderBottomColor = t.border;
+      el.style.color = t.tx3;
+    });
+    modal.querySelectorAll('[data-sec-body]').forEach(function(el) {
+      el.style.background = t.bg;
+    });
+
+    // Steps
+    modal.querySelectorAll('[data-label]').forEach(function(b) {
+      var sel = selectedSteps.includes(b.dataset.label);
+      b.style.background = sel ? t.stepSel : t.bg;
+      b.style.borderColor = sel ? '#1F93FF' : t.border;
+      b.style.color = sel ? t.stepSelTx : t.tx2;
+    });
+
+    // Cat btns
+    modal.querySelectorAll('[data-cat-btn]').forEach(function(b) {
+      b.style.background = t.catBg;
+      b.style.borderBottomColor = t.border;
+      b.style.color = t.catTx;
+    });
+
+    // Inputs
+    modal.querySelectorAll('[data-inp]').forEach(function(el) {
+      el.style.background = t.inpBg;
+      el.style.borderColor = t.inpBorder;
+      el.style.color = t.inpTx;
+    });
+
+    // Preview
+    preview.style.background = t.prevBg;
+    preview.style.borderColor = t.border;
+    preview.style.color = t.tx;
+
+    // Tabs
+    setTabStyles(activeTab);
+
+    // Reset btn
+    btnReset.style.color = t.tx4;
+    btnReset.style.borderColor = t.border;
+
+    // ConvPreviewBox
+    convPreviewBox.style.background = t.prevBg;
+    convPreviewBox.style.borderColor = t.border;
+    convPreviewBox.style.color = t.tx2;
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+    applyTheme();
+  });
+
   // --- Estado ---
   var selectedSteps = [];
   var selectedDf = '';
@@ -268,8 +361,10 @@
   // --- Helpers ---
   function mkSec(title, collapsible) {
     var wrap = document.createElement('div');
+    wrap.dataset.secWrap = '1';
     Object.assign(wrap.style, { border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' });
     var t = document.createElement('div');
+    t.dataset.secTitle = '1';
     Object.assign(t.style, {
       fontSize: '11px', fontWeight: '700', color: '#6b7280',
       textTransform: 'uppercase', letterSpacing: '.06em',
@@ -277,6 +372,7 @@
     });
     t.textContent = collapsible ? title + ' >' : title;
     var b = document.createElement('div');
+    b.dataset.secBody = '1';
     b.style.padding = '8px 10px';
     if (collapsible) {
       b.style.display = 'none';
@@ -308,6 +404,7 @@
     var i = document.createElement(isTextarea ? 'textarea' : 'input');
     if (!isTextarea) i.type = 'text';
     i.placeholder = placeholder;
+    i.dataset.inp = '1';
     Object.assign(i.style, {
       width: '100%', padding: '7px 8px', border: '1px solid #e5e7eb',
       borderRadius: '6px', fontSize: '12px', color: '#111',
@@ -476,6 +573,7 @@
   var catsWrap = document.createElement('div');
   CATS.forEach(function(cat) {
     var catBtn = document.createElement('button');
+    catBtn.dataset.catBtn = '1';
     Object.assign(catBtn.style, {
       width: '100%', textAlign: 'left', padding: '7px 10px',
       border: 'none', borderBottom: '1px solid #e5e7eb',
@@ -540,6 +638,8 @@
   stepsSec.body.appendChild(convHint2);
 
   var convInp = document.createElement('textarea');
+  convInp.dataset.inp = '1';
+  convInp.dataset.inp = '1';
   convInp.placeholder = 'Cole aqui a conversa com o cliente...';
   convInp.rows = 3;
   convInp.style.cssText = 'width:100%;padding:7px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#111;font-family:inherit;outline:none;box-sizing:border-box;resize:vertical;';
@@ -627,6 +727,7 @@
   fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
   fimHint.textContent = 'Salva automaticamente. Aparece no final do resumo para o cliente.';
   var fimInp = document.createElement('textarea');
+  fimInp.dataset.inp = '1';
   fimInp.placeholder = 'Ex: Att, Luccas - Suporte Consumer';
   fimInp.rows = 3;
   fimInp.style.cssText = 'width:100%;padding:7px 8px;border:1px solid #e5e7eb;border-radius:6px;font-size:12px;color:#111;font-family:inherit;outline:none;box-sizing:border-box;resize:vertical;';
@@ -889,6 +990,7 @@
   document.documentElement.appendChild(toggleBtn);
 
   function openModal() {
+    applyTheme();
     overlay.style.display = 'flex';
     toggleBtn.style.display = 'none';
   }
