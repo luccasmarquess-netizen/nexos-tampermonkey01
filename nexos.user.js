@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.9.1
+// @version      1.9.3
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -338,9 +338,10 @@
   // Footer
   const ftr = document.createElement('div');
   Object.assign(ftr.style, {
-    padding: '12px 14px', borderTop: '1px solid #e5e7eb',
-    display: 'flex', flexDirection: 'column', gap: '6px',
+    padding: '10px 12px', borderTop: '1px solid #e5e7eb',
+    display: 'flex', flexDirection: 'column', gap: '5px',
     flexShrink: '0', background: '#f9fafb',
+    maxHeight: '320px', overflowY: 'auto',
   });
   modal.appendChild(ftr);
 
@@ -678,9 +679,9 @@ Responda APENAS com o array JSON.`;
   const preview = document.createElement('div');
   Object.assign(preview.style, {
     background: '#f9fafb', border: '1px solid #e5e7eb', borderRadius: '7px',
-    padding: '10px', fontSize: '12px', lineHeight: '1.7',
+    padding: '8px', fontSize: '12px', lineHeight: '1.6',
     whiteSpace: 'pre-wrap', color: '#111',
-    height: '120px', maxHeight: '120px', minHeight: '120px',
+    height: '90px', maxHeight: '90px', minHeight: '90px',
     overflowY: 'scroll', display: 'none', flexShrink: '0',
   });
   ftr.appendChild(preview);
@@ -842,37 +843,53 @@ Responda APENAS com o array JSON.`;
     btnFormatAI.disabled = false;
   });
 
+  function copyText(txt) {
+    return new Promise((resolve, reject) => {
+      // Tenta clipboard API primeiro
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(txt).then(resolve).catch(() => {
+          // Fallback: textarea temporário dentro do modal
+          const ta = document.createElement('textarea');
+          ta.value = txt;
+          Object.assign(ta.style, {
+            position: 'fixed', top: '-9999px', left: '-9999px',
+            width: '2px', height: '2px', opacity: '0',
+          });
+          document.documentElement.appendChild(ta);
+          ta.focus(); ta.select();
+          let ok = false;
+          try { ok = document.execCommand('copy'); } catch(e) {}
+          document.documentElement.removeChild(ta);
+          ok ? resolve() : reject();
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = txt;
+        Object.assign(ta.style, {
+          position: 'fixed', top: '-9999px', left: '-9999px',
+          width: '2px', height: '2px', opacity: '0',
+        });
+        document.documentElement.appendChild(ta);
+        ta.focus(); ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch(e) {}
+        document.documentElement.removeChild(ta);
+        ok ? resolve() : reject();
+      }
+    });
+  }
+
   btnCopy.addEventListener('click', () => {
+    // Lê diretamente da variável — não depende do DOM
     const txt = activeTab === 'tec' ? resumoTec : resumoCli;
     if (!txt) { showStatus('Nenhum resumo gerado.', 'err'); return; }
-    // Cria textarea dentro do modal para evitar bloqueio do Chatwoot
-    const ta = document.createElement('textarea');
-    ta.value = txt;
-    Object.assign(ta.style, {
-      position: 'absolute', top: '0', left: '0',
-      width: '1px', height: '1px', opacity: '0',
-      zIndex: '-1', pointerEvents: 'none',
-    });
-    modal.appendChild(ta);
-    ta.focus();
-    ta.select();
-    let ok = false;
-    try { ok = document.execCommand('copy'); } catch(e) {}
-    modal.removeChild(ta);
-    if (ok) {
+    copyText(txt).then(() => {
       showStatus('✓ Copiado!', 'ok');
       btnCopy.textContent = '✓ Copiado!';
       setTimeout(() => { btnCopy.textContent = '📋 Copiar texto'; }, 2000);
-    } else {
-      // Fallback: mostra o texto selecionável para copiar manualmente
-      showStatus('Ctrl+C para copiar o texto selecionado no preview.', 'err');
-      preview.focus();
-      const range = document.createRange();
-      range.selectNodeContents(preview);
-      const sel = window.getSelection();
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
+    }).catch(() => {
+      showStatus('Erro ao copiar. Tente Ctrl+C no texto acima.', 'err');
+    });
   });
 
 
