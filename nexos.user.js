@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      1.9.3
+// @version      1.9.4
 // @description  Resumo de atendimento técnico direto no Chatwoot — sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -628,8 +628,16 @@ Responda APENAS com o array JSON.`;
   dfSec.body.appendChild(dfGrid);
   body.appendChild(dfSec.wrap);
 
-  // ─── Seção Mensagem de finalização ──────────────────────────────────────────
-  const fimSec = sec('💬 Mensagem de finalização (para o cliente)');
+  // ─── Seção Mensagem de finalização (colapsável) ─────────────────────────────
+  const fimSec = sec('💬 Mensagem de finalização (para o cliente)  ▸');
+  fimSec.body.style.display = 'none';
+  fimSec.title.style.cursor = 'pointer';
+  fimSec.title.addEventListener('click', () => {
+    const open = fimSec.body.style.display !== 'none';
+    fimSec.body.style.display = open ? 'none' : 'block';
+    const t = fimSec.title;
+    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+  });
   const fimHint = document.createElement('div');
   fimHint.style.cssText = 'font-size:11px;color:#9ca3af;margin-bottom:6px;';
   fimHint.dataset.hint = '1';
@@ -643,8 +651,16 @@ Responda APENAS com o array JSON.`;
   fimSec.body.appendChild(fimInp);
   body.appendChild(fimSec.wrap);
 
-  // ─── Seção Observação ─────────────────────────────────────────────────────
-  const obsSec = sec('📝 Observação adicional (opcional)');
+  // ─── Seção Observação (colapsável) ───────────────────────────────────────
+  const obsSec = sec('📝 Observação adicional (opcional)  ▸');
+  obsSec.body.style.display = 'none';
+  obsSec.title.style.cursor = 'pointer';
+  obsSec.title.addEventListener('click', () => {
+    const open = obsSec.body.style.display !== 'none';
+    obsSec.body.style.display = open ? 'none' : 'block';
+    const t = obsSec.title;
+    t.textContent = t.textContent.replace(open ? '▾' : '▸', open ? '▸' : '▾');
+  });
   const obsInp = inp('Ex: cliente orientado sobre certificado digital', 'textarea');
   obsInp.rows = 2;
   obsInp.style.resize = 'vertical';
