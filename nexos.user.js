@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      2.0.2
+// @version      2.0.5
 // @description  Resumo de atendimento técnico direto no Chatwoot -- sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -295,7 +295,7 @@
   ];
 
   function buildTec(steps, df, obs) {
-    let txt = steps.map((s, i) => ${i+1}. ${s}``).join('\n');
+    let txt = steps.map((s, i) => `${i+1}. ${s}`).join('\n');
     txt += '\n' + FRASE_FINAL;
     if (obs) txt += '\n\nObservacao: ' + obs;
     const d = DESFECHOS.find(x => x.l === df);
@@ -550,12 +550,10 @@
       convPreviewBox.style.display = 'none';
       return;
     }
-    const textoAnon = anonimizar(msgs.join('
----
-'));
+    const textoAnon = anonimizar(msgs.join('\n---\n'));
     convPreviewBox.textContent = textoAnon;
     convPreviewBox.style.display = 'block';
-    convStatusEl.textContent = [ok] ${msgs.length} mensagem(ns) do agente capturada(s). Dados sensiveis anonimizados.``;
+    convStatusEl.textContent = '[ok] ' + msgs.length + ' mensagem(ns) do agente capturada(s). Dados sensiveis anonimizados.';
     convStatusEl.style.color = '#16a34a';
     convStatusEl.style.display = 'block';
   });
@@ -567,27 +565,12 @@
       showStatus('Nenhuma mensagem do agente encontrada.', 'err');
       return;
     }
-    const textoAnon = anonimizar(msgs.join('
----
-'));
+    const textoAnon = anonimizar(msgs.join('\n---\n'));
     convBtnGerar.textContent = '[wait] Gerando...';
     convBtnGerar.disabled = true;
     convBtnPreview.disabled = true;
     try {
-      const prompt = Voce e um tecnico senior de suporte do sistema Consumer (PDV/ERP para restaurantes). Analise as mensagens abaixo enviadas pelo agente de suporte durante um atendimento e gere um resumo tecnico profissional dos procedimentos realizados.
-
-REGRAS:
-- Itens numerados (1. 2. 3...) na ordem cronologica
-- Verbos no passado, primeira pessoa do plural: "Realizamos", "Verificamos", "Configuramos", "Orientamos"
-- Linguagem tecnica formal
-- Encerre com: "Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento."
-- Nao inclua dados pessoais ou informacoes do cliente
-- NAO inclua bloco de desfecho
-
-MENSAGENS DO AGENTE:
-${textoAnon}
-
-Responda APENAS com o resumo numerado e a frase final.``;
+      const prompt = 'Voce e um tecnico senior de suporte do sistema Consumer. Analise as mensagens do agente abaixo e gere um resumo tecnico profissional. Itens numerados, verbos no passado (Realizamos, Verificamos, Configuramos, Orientamos), linguagem tecnica formal. Encerre com: Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento. Nao inclua dados pessoais. MENSAGENS DO AGENTE: ' + textoAnon + ' Responda APENAS com o resumo numerado e a frase final.';
 
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
@@ -743,12 +726,7 @@ Responda APENAS com o resumo numerado e a frase final.``;
     convBtn.textContent = '[wait] Extraindo...';
     convBtn.disabled = true;
     try {
-      const prompt = Voce e um tecnico de suporte do sistema Consumer (PDV para restaurantes). Analise a conversa abaixo e liste APENAS os procedimentos tecnicos que foram realizados durante o atendimento. Responda SOMENTE com uma lista JSON de strings, sem markdown, sem explicacoes. Exemplo: ["Acesso remoto estabelecido (RustDesk)", "Consumer reiniciado"]
-
-CONVERSA:
-${conv}
-
-Responda APENAS com o array JSON.``;
+      const prompt = 'Voce e um tecnico de suporte do sistema Consumer. Analise a conversa abaixo e liste APENAS os procedimentos tecnicos realizados. Responda SOMENTE com lista JSON de strings. CONVERSA: ' + conv + ' Responda APENAS com o array JSON.';
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'POST',
@@ -761,13 +739,13 @@ Responda APENAS com o array JSON.``;
       });
       const j = JSON.parse(r.responseText);
       if (j.text) {
-        const raw = j.text.replace(/``json|````/g, '').trim();
+        const raw = j.text.replace(/```json|```/g, '').trim();
         const passos = JSON.parse(raw);
         if (Array.isArray(passos) && passos.length) {
           passos.forEach(p => { if (p && !selectedSteps.includes(p)) selectedSteps.push(p); });
           renderSteps();
           convInp.value = '';
-          showStatus([ok] ${passos.length} passo(s) extraido(s) e adicionado(s)!``, 'ok');
+          showStatus('[ok] ' + passos.length + ' passo(s) extraido(s) e adicionado(s)!', 'ok');
         } else {
           showStatus('Nenhum procedimento identificado. Tente descrever mais a conversa.', 'err');
         }
@@ -1022,8 +1000,8 @@ Responda APENAS com o array JSON.``;
     btnFormatAI.disabled = true;
     try {
       const prompt = activeTab === 'tec'
-        ? Voce e um tecnico senior de suporte do sistema Consumer (PDV para restaurantes). Reformule o resumo abaixo deixando-o mais profissional, coeso e claro. Mantenha os mesmos procedimentos, use verbos no passado em primeira pessoa do plural (Realizamos, Verificamos, Configuramos), mantenha a numeracao e a frase final. Nao invente informacoes.RESUMO:${txt}Responda APENAS com o resumo reformulado.``
-        : Voce e um assistente de comunicacao. Reescreva o resumo abaixo em linguagem simples e amigavel para o dono do restaurante, mantendo os marcadores * e a frase final. Nao use termos tecnicos.RESUMO:${txt}Responda APENAS com o resumo reescrito.``;
+        ? 'Voce e um tecnico senior de suporte do sistema Consumer. Reformule o resumo abaixo de forma mais profissional, coesa e clara. Mantenha os procedimentos, use verbos no passado em primeira pessoa do plural. Nao invente informacoes. RESUMO: ' + txt + ' Responda APENAS com o resumo reformulado.'
+        : 'Voce e um assistente de comunicacao. Reescreva o resumo abaixo em linguagem simples e amigavel para o dono do restaurante, mantendo os marcadores * e a frase final. Nao use termos tecnicos. RESUMO: ' + txt + ' Responda APENAS com o resumo reescrito.';
       const r = await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'POST',
