@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      2.0.5
+// @version      2.0.7
 // @description  Resumo de atendimento técnico direto no Chatwoot -- sem IA, sem dados externos
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -12,6 +12,7 @@
 // @grant        GM_getValue
 // @grant        GM_xmlhttpRequest
 // @connect      app.chatwoot.com
+// @connect      nexos-tampermonkey.luccasmarquess.workers.dev
 // @updateURL    https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
 // @downloadURL  https://raw.githubusercontent.com/luccasmarquess-netizen/nexos-tampermonkey01/main/nexos.user.js
 // ==/UserScript==
@@ -21,34 +22,21 @@
 
   // --- Captura de mensagens do Chatwoot via DOM -------------------------------
   function capturarMensagensAgente() {
-    // Pega só mensagens de saída (agente) -- ignora mensagens do cliente
+    // Pega so mensagens do agente (right-bubble = azul = saida)
+    // Ignora cliente (left-bubble) e notas internas (bg-n-solid-amber)
     const msgs = [];
-    // Seletores do Chatwoot para mensagens outgoing
-    const selectors = [
-      '.conversation-view .outgoing-message .message-text__content',
-      '.conversation-view [class*="outgoing"] [class*="content"]',
-      '.view-box .outgoing .message-content',
-      '.messages-list .right .message-text',
-    ];
-    for (const sel of selectors) {
-      const els = document.querySelectorAll(sel);
-      if (els.length > 0) {
-        els.forEach(el => {
-          const txt = el.innerText?.trim();
-          if (txt && txt.length > 3) msgs.push(txt);
-        });
-        break;
+    document.querySelectorAll('.prose.prose-bubble p').forEach(p => {
+      const txt = p.textContent.trim();
+      if (!txt || txt.length < 3) return;
+      let el = p;
+      for (let i = 0; i < 8; i++) {
+        el = el.parentElement;
+        if (!el) break;
+        const cls = el.className || '';
+        if (cls.includes('right-bubble')) { msgs.push(txt); break; }
+        if (cls.includes('left-bubble') || cls.includes('n-solid-amber')) break;
       }
-    }
-    // Fallback: tenta pegar pelo atributo data
-    if (msgs.length === 0) {
-      document.querySelectorAll('[data-key*="message"]').forEach(el => {
-        if (el.closest('[class*="outgoing"], [class*="right"]')) {
-          const txt = el.innerText?.trim();
-          if (txt && txt.length > 3) msgs.push(txt);
-        }
-      });
-    }
+    });
     return msgs;
   }
 
