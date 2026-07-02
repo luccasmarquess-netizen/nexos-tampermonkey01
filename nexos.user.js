@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Nexos
 // @namespace    https://github.com/luccasmarquess-netizen/nexos-tampermonkey01
-// @version      3.0.2
+// @version      3.0.3
 // @description  Resumo de atendimento tecnico direto no Chatwoot
 // @author       Luccas Marques
 // @match        https://app.chatwoot.com/app/accounts/*/conversations/*
@@ -63,54 +63,54 @@
   const FRASE_FINAL = 'Todos os procedimentos e testes foram realizados na presenca do responsavel pelo estabelecimento.';
 
   const TRADUCOES = [
-    [/acesso remoto estabelecido/i,              '* Realizamos o atendimento de forma remota, conectando ao computador do estabelecimento pela internet'],
-    [/atualizacao do consumer executada/i,        '* Atualizamos o sistema Consumer para a versao mais recente, garantindo melhor desempenho e correcoes de erros'],
-    [/consumer reiniciado/i,                      '* Reiniciamos o sistema Consumer para aplicar as configuracoes e resolver instabilidades'],
-    [/reinstalacao do consumer realizada/i,       '* Realizamos a reinstalacao completa do sistema Consumer para resolver problemas de funcionamento'],
-    [/backup realizado/i,                         '* Realizamos uma copia de seguranca dos dados do sistema antes de iniciar as alteracoes'],
-    [/bloqueio de antivirus.*verificado/i,        '* Verificamos as permissoes de seguranca do computador para garantir o funcionamento correto do sistema'],
-    [/ip fixo.*configurado/i,                     '* Configuramos o endereco de rede do servidor para garantir comunicacao estavel entre os computadores'],
-    [/vpn.*configurada/i,                         '* Configuramos a conexao segura entre os computadores da loja'],
-    [/reconexao entre pc servidor/i,              '* Restabelecemos a comunicacao entre os computadores da loja, resolvendo o problema de conexao interna'],
-    [/impressora instalada e configurada/i,       '* Instalamos e configuramos a impressora no sistema, permitindo a impressao de cupons e pedidos'],
-    [/driver da impressora reinstalado/i,         '* Reinstalamos o programa da impressora para corrigir falhas de comunicacao com o sistema'],
-    [/teste de impressao realizado.*positivo/i,   '* Realizamos testes de impressao com resultado positivo, confirmando o funcionamento correto'],
-    [/gaveta de dinheiro verificada/i,            '* Verificamos e testamos o funcionamento da gaveta de dinheiro'],
-    [/balanca instalada e configurada/i,          '* Instalamos e configuramos a balanca no sistema Consumer'],
-    [/emissor fiscal.*configurado/i,              '* Corrigimos e configuramos o sistema de emissao de cupons fiscais (NFC-e), permitindo a emissao de notas novamente'],
-    [/modulo fiscal verificado/i,                 '* Verificamos o modulo de emissao de notas fiscais e confirmamos seu funcionamento'],
-    [/certificado digital verificado/i,           '* Verificamos e atualizamos o certificado digital necessario para a emissao de notas fiscais'],
-    [/rejeicao de cupom fiscal.*corrigida/i,      '* Identificamos e corrigimos o motivo da rejeicao dos cupons fiscais junto a Receita Federal'],
-    [/validacao e testes de emissao fiscal/i,     '* Realizamos testes de emissao fiscal e confirmamos que as notas estao sendo emitidas corretamente'],
-    [/emissao de cupom fiscal em lote/i,          '* Emitimos os cupons fiscais que estavam pendentes no sistema'],
-    [/arquivos xml exportados/i,                  '* Exportamos os arquivos fiscais (XML) para o contador'],
-    [/cancelamento de nfc-e/i,                    '* Realizamos o cancelamento das notas fiscais solicitadas junto a Receita Federal'],
-    [/integracao ifood verificada/i,              '* Verificamos e confirmamos que os pedidos do iFood estao sendo recebidos corretamente no sistema'],
-    [/integracao 99food verificada/i,             '* Verificamos e confirmamos que os pedidos do 99Food estao sendo recebidos corretamente'],
-    [/integracao keeta verificada/i,              '* Verificamos e confirmamos que os pedidos do Keeta estao sendo recebidos corretamente'],
-    [/bot whatsapp.*validado/i,                   '* Configuramos e testamos o Bot do WhatsApp, que agora esta respondendo automaticamente aos clientes'],
-    [/bot whatsapp verificado/i,                  '* Verificamos o funcionamento do Bot do WhatsApp e confirmamos que esta ativo'],
-    [/app do entregador verificado/i,             '* Verificamos o funcionamento do aplicativo dos entregadores'],
-    [/monitor de preparo verificado/i,            '* Verificamos o funcionamento do monitor de preparo da cozinha (KDS)'],
-    [/recebimento via pix configurado/i,          '* Configuramos o recebimento de pagamentos via PIX no sistema'],
-    [/totem verificado/i,                         '* Verificamos e configuramos o totem de autoatendimento'],
-    [/modulo mobile instalado/i,                  '* Instalamos e configuramos o modulo de atendimento pelo celular (comanda mobile)'],
-    [/maquina tef verificada/i,                   '* Verificamos e integramos a maquininha de cartao com o sistema'],
-    [/integracao via api do parceiro/i,           '* Configuramos a integracao com o sistema do parceiro'],
-    [/menudino configurado/i,                     '* Configuramos e validamos o cardapio online do estabelecimento no MenuDino'],
-    [/chave google maps configurada/i,            '* Configuramos a integracao com o Google Maps para calculo de areas de entrega'],
-    [/firebird.*reinstalado.*zero/i,              '* Reinstalamos o banco de dados do sistema do zero para resolver problemas de funcionamento'],
-    [/firebird padrao reinstalado/i,              '* Restauramos o banco de dados do sistema para corrigir falhas'],
-    [/firebird exclusivo removido/i,              '* Removemos a versao exclusiva do banco de dados que estava causando conflitos'],
-    [/servico do firebird reiniciado/i,           '* Reiniciamos o servico de banco de dados do sistema'],
-    [/comunicacao do firebird.*validada/i,        '* Confirmamos que o banco de dados esta se comunicando corretamente com o sistema'],
-    [/recuperacao do banco de dados/i,            '* Recuperamos o banco de dados do sistema apos identificar corrupcao nos arquivos'],
-    [/responsavel orientado quanto/i,             '* Orientamos o responsavel pelo estabelecimento sobre os procedimentos realizados e proximos passos'],
-    [/responsavel orientado sobre.*impactos/i,    '* Orientamos o responsavel sobre possiveis impactos e como prevenir o problema no futuro'],
-    [/manual do consumer indicado/i,              '* Indicamos o manual do sistema para consulta em caso de duvidas'],
-    [/consumer connect.*demonstrado/i,            '* Demonstramos o portal de relatorios online (Consumer Connect) para acompanhamento do negocio'],
-    [/crm verificado/i,                           '* Verificamos o historico de relacionamento com clientes e repassamos orientacoes'],
-    [/cliente orientado.*visita/i,                '* Orientamos sobre a necessidade de suporte tecnico presencial para resolucao definitiva'],
+    [/acesso remoto estabelecido/i,              '* Realizamos o atendimento de forma remota via acesso ao computador'],
+    [/atualizacao do consumer executada/i,        '* Atualizamos o sistema Consumer para a versao mais recente'],
+    [/consumer reiniciado/i,                      '* Reiniciamos o sistema Consumer'],
+    [/reinstalacao do consumer realizada/i,       '* Reinstalamos o sistema Consumer'],
+    [/backup realizado/i,                         '* Realizamos copia de seguranca dos dados antes da intervencao'],
+    [/bloqueio de antivirus.*verificado/i,        '* Verificamos as configuracoes de seguranca e antivirus do computador'],
+    [/ip fixo.*configurado/i,                     '* Configuramos o endereco de rede fixo no servidor'],
+    [/vpn.*configurada/i,                         '* Configuramos a conexao VPN entre os computadores da loja'],
+    [/reconexao entre pc servidor/i,              '* Restabelecemos a comunicacao entre o servidor e os computadores clientes'],
+    [/impressora instalada e configurada/i,       '* Instalamos e configuramos a impressora no sistema'],
+    [/driver da impressora reinstalado/i,         '* Reinstalamos o driver da impressora'],
+    [/teste de impressao realizado.*positivo/i,   '* Realizamos teste de impressao com resultado positivo'],
+    [/gaveta de dinheiro verificada/i,            '* Verificamos o funcionamento da gaveta de dinheiro'],
+    [/balanca instalada e configurada/i,          '* Instalamos e configuramos a balanca no sistema'],
+    [/emissor fiscal.*configurado/i,              '* Corrigimos e configuramos o emissor de cupons fiscais (NFC-e)'],
+    [/modulo fiscal verificado/i,                 '* Verificamos o modulo fiscal e confirmamos seu funcionamento'],
+    [/certificado digital verificado/i,           '* Verificamos e atualizamos o certificado digital'],
+    [/rejeicao de cupom fiscal.*corrigida/i,      '* Identificamos e corrigimos a rejeicao de cupons fiscais'],
+    [/validacao e testes de emissao fiscal/i,     '* Realizamos testes de emissao fiscal com resultado positivo'],
+    [/emissao de cupom fiscal em lote/i,          '* Emitimos os cupons fiscais pendentes em lote'],
+    [/arquivos xml exportados/i,                  '* Exportamos os arquivos XML fiscais para o contador'],
+    [/cancelamento de nfc-e/i,                    '* Realizamos o cancelamento das notas fiscais solicitadas'],
+    [/integracao ifood verificada/i,              '* Verificamos a integracao com o iFood e confirmamos o recebimento de pedidos'],
+    [/integracao 99food verificada/i,             '* Verificamos a integracao com o 99Food e confirmamos o recebimento de pedidos'],
+    [/integracao keeta verificada/i,              '* Verificamos a integracao com o Keeta e confirmamos o recebimento de pedidos'],
+    [/bot whatsapp.*validado/i,                   '* Configuramos e validamos o Bot do WhatsApp'],
+    [/bot whatsapp verificado/i,                  '* Verificamos o funcionamento do Bot do WhatsApp'],
+    [/app do entregador verificado/i,             '* Verificamos o App do Entregador'],
+    [/monitor de preparo verificado/i,            '* Verificamos o Monitor de Preparo (KDS)'],
+    [/recebimento via pix configurado/i,          '* Configuramos o recebimento de pagamentos via PIX'],
+    [/totem verificado/i,                         '* Verificamos e configuramos o Totem de autoatendimento'],
+    [/modulo mobile instalado/i,                  '* Instalamos e validamos o Modulo Mobile (comanda pelo celular)'],
+    [/maquina tef verificada/i,                   '* Verificamos e integramos a maquina TEF com o sistema'],
+    [/integracao via api do parceiro/i,           '* Configuramos a integracao via API com o sistema do parceiro'],
+    [/menudino configurado/i,                     '* Configuramos e validamos o MenuDino (cardapio online)'],
+    [/chave google maps configurada/i,            '* Configuramos a chave do Google Maps para areas de entrega'],
+    [/firebird.*reinstalado.*zero/i,              '* Reinstalamos o banco de dados Firebird do zero'],
+    [/firebird padrao reinstalado/i,              '* Reinstalamos o Firebird padrao'],
+    [/firebird exclusivo removido/i,              '* Removemos o Firebird exclusivo'],
+    [/servico do firebird reiniciado/i,           '* Reiniciamos o servico do Firebird'],
+    [/comunicacao do firebird.*validada/i,        '* Validamos a comunicacao do Firebird com o Consumer'],
+    [/recuperacao do banco de dados/i,            '* Recuperamos o banco de dados do sistema'],
+    [/responsavel orientado quanto/i,             '* Orientamos o responsavel sobre os procedimentos realizados'],
+    [/responsavel orientado sobre.*impactos/i,    '* Orientamos o responsavel sobre impactos e prevencao'],
+    [/manual do consumer indicado/i,              '* Indicamos o manual do Consumer para consulta'],
+    [/consumer connect.*demonstrado/i,            '* Demonstramos o Consumer Connect (relatorios online)'],
+    [/crm verificado/i,                           '* Verificamos o CRM e repassamos orientacoes'],
+    [/cliente orientado.*visita/i,                '* Orientamos sobre necessidade de suporte tecnico presencial'],
   ];
 
   // --- Construcao de resumos ---
@@ -124,24 +124,29 @@
   }
 
   function buildCli(steps, df, obs, fim) {
-    const itens = [];
-    for (const step of steps) {
-      for (const [re2, texto] of TRADUCOES) {
-        if (re2.test(step) && !itens.includes(texto)) { itens.push(texto); break; }
+    var itens = [];
+    for (var i = 0; i < steps.length; i++) {
+      var step = steps[i];
+      var found = false;
+      for (var j = 0; j < TRADUCOES.length; j++) {
+        if (TRADUCOES[j][0].test(step) && !itens.includes(TRADUCOES[j][1])) {
+          itens.push(TRADUCOES[j][1]);
+          found = true;
+          break;
+        }
       }
     }
-    if (!itens.length) itens.push('* Realizamos os procedimentos necessarios para resolver o problema relatado.');
-    if (obs) itens.push('* Observacao: ' + obs);
-    const dm = {
-      'Resolvido':   'O problema foi resolvido durante este atendimento. Caso perceba qualquer instabilidade, nao hesite em nos contatar.',
-      'Parcial':     'O problema foi parcialmente resolvido. Nossa equipe entrara em contato para continuidade do atendimento.',
-      'Analise Q.A': 'O caso foi encaminhado para analise aprofundada da nossa equipe tecnica. Retornaremos em breve com um posicionamento.',
-      'Ag. cliente': 'O atendimento esta aguardando seu retorno para que possamos dar continuidade.',
+    if (!itens.length) itens.push('* Realizamos os procedimentos necessarios para resolver o problema.');
+    if (obs) itens.push('* ' + obs);
+    var dm = {
+      'Resolvido':   'Situacao atual: problema resolvido. Caso perceba qualquer instabilidade, entre em contato.',
+      'Parcial':     'Situacao atual: problema parcialmente resolvido. Entraremos em contato para continuidade.',
+      'Analise Q.A': 'Situacao atual: caso encaminhado para analise tecnica aprofundada. Retornaremos em breve.',
+      'Ag. cliente': 'Situacao atual: atendimento aguardando seu retorno para continuidade.',
     };
-    let txt = 'Ola! Segue o resumo do atendimento realizado hoje:\n\n';
+    var txt = 'Segue o resumo do atendimento realizado:\n\n';
     txt += itens.join('\n');
-    if (df && dm[df]) txt += '\n\n' + dm[df];
-    txt += '\n\nCaso tenha qualquer duvida, estamos a disposicao.';
+    if (selectedDf && dm[selectedDf]) txt += '\n\n' + dm[selectedDf];
     if (fim) txt += '\n\n' + fim;
     return txt;
   }
@@ -922,11 +927,9 @@
     // Formata com IA em paralelo
     try {
       var promptTec = 'Reformule o resumo tecnico abaixo. REGRAS OBRIGATORIAS: (1) Mantenha TODOS os itens numerados separados, um por linha, comecando com 1. 2. 3. etc. NUNCA junte itens em um unico paragrafo. (2) Cada item deve comecar com verbo no passado em primeira pessoa do plural: Realizamos, Verificamos, Configuramos, Orientamos, Identificamos, Instalamos. (3) Mantenha a frase final exatamente como esta. (4) Mantenha o bloco de DESFECHO exatamente como esta. (5) Nao invente procedimentos. RESUMO ORIGINAL: ' + baseTec + ' Responda APENAS com os itens numerados e a frase final, sem introducao.';
-      var promptCli = 'Voce e um assistente de comunicacao para uma empresa de suporte tecnico de restaurantes. Melhore o texto abaixo mantendo a estrutura de topicos com *, a introducao Ola! Segue o resumo... e a frase final. Torne cada item mais claro e humanizado para o dono do restaurante, sem usar termos tecnicos. TEXTO: ' + baseCli + ' Responda APENAS com o texto melhorado.';
-
-      var results = await Promise.all([chamarIA(promptTec), chamarIA(promptCli)]);
+      var results = await Promise.all([chamarIA(promptTec)]);
       if (results[0]) resumoTec = results[0];
-      if (results[1]) resumoCli = results[1];
+      // resumo do cliente nao passa pela IA — o buildCli ja gera direto e especifico
       preview.textContent = activeTab === 'tec' ? resumoTec : resumoCli;
       showStatus('Resumo gerado!', 'ok');
       setTimeout(clearStatus, 2000);
